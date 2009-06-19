@@ -853,10 +853,6 @@ CLI::Framework::Exceptions
 
 CLI::Framework::Application
 
-CLI::Framework::Quickstart
-
-CLI::Framework::Tutorial
-
 =head1 LICENSE AND COPYRIGHT
 
 Copyright (c) 2009 Karl Erisman (karl.erisman@icainformatics.com), ICA

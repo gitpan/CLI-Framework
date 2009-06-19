@@ -5,7 +5,7 @@ use warnings;
 use warnings::register;
 use Carp;
 
-our $VERSION = 0.01;
+our $VERSION = 0.02;
 
 use Getopt::Long::Descriptive;
 use Class::Inspector;
@@ -668,7 +668,7 @@ adopted as a standardized convention.
 =head1 UNDERSTANDING CLIF: RECOMMENDATIONS
 
 "Quickstart" and "Tutorial" guides are currently being prepared for the next
-CLIF release.  However, this early 0.01 version has the necessary content.
+CLIF release.  However, this early version has the necessary content.
 See especially L<CLI::Framework::Application> and L<CLI::Framework::Command>.
 Also, there are example CLIF applications (demonstrating both simple and
 advanced usage) included with the tests for this distribution.
@@ -782,16 +782,6 @@ list of the other commands in its application.
 In general, your commands should be designed to operate independently of the
 application, so they should simply inherit from C<CLI::Framework::Command>.
 The Metacommand facility is useful but should only be used when necessary.
-
-
-#FIXME-DOCUMENT:Tutorial will give design guidelines for how to use
-metacommands vs regular commands -- in general, an application should modify
-attributes of its commands instead of commands modifying application
-attributes (e.g. if a command needs a reference to an application-wide object
-stored in the app object, the app's init() method should set an attribute in
-the command instead of having the command be a metacommand, which holds a
-reference to the application).
-
 
 =item *
 
@@ -1225,7 +1215,7 @@ templating system, if desired.
 
 Given a string, return a true value if it is a quit signal (indicating that
 the application should exit) and a false value otherwise.
-L<quit_signals|\quit_signals> is an application subclass hook that
+L<quit_signals|/quit_signals> is an application subclass hook that
 defines what strings signify that the interactive session should exit.
 
 =head1 METHODS: SUBCLASS HOOKS
@@ -1367,7 +1357,7 @@ can be Exception::Class objects.
 
 =head1 DIAGNOSTICS
 
-FIXME: Details will be provided pending finalizing error handling policies
+Details will be provided pending finalizing error handling policies
 
 =head1 CONFIGURATION & ENVIRONMENT
 
@@ -1397,7 +1387,7 @@ CLI::Framework::Command
 =head1 DEFECTS AND LIMITATIONS
 
 The CLIF distribution (CLI::Framework::*) is a work in progress!  The current
-0.01 release is already quite effective, but there are several aspects that I
+release is already quite effective, but there are several aspects that I
 plan to improve.
 
 The following areas are currently targeted for improvement:
