@@ -33,7 +33,7 @@ sub validate {
 sub run {
     my ($self, $opts, @args) = @_;
 
-    my $db = $self->session( 'db' );
+    my $db = $self->cache->get( 'db' );
 
     $db->add_tag_to_entry( $opts->{id}, $_ ) for @args;
 
@@ -53,7 +53,7 @@ sub validate {
 sub run {
     my ($self, $opts, @args) = @_;
 
-    my $db = $self->session( 'db' );
+    my $db = $self->cache->get( 'db' );
 
     my @tag_ids;
     for my $tag_text (@args) {
@@ -78,7 +78,7 @@ sub validate {
 sub run {
     my ($self, $opts, @args) = @_;
 
-    my $db = $self->session( 'db' );
+    my $db = $self->cache->get( 'db' );
 
     $db->clear_tags_from_entry( $opts->{id} );
 

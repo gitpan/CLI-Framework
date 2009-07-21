@@ -17,9 +17,9 @@ sub usage_text {
 sub run {
     my ($self, $opts, @args) = @_;
 
-    my $app = $self->app(); # metacommand is app-aware
+    my $app = $self->get_app(); # metacommand is app-aware
 
-    $app->run_interactive( initialize => 1 );
+    $app->run_interactive();
 
     return;
 }
@@ -33,11 +33,15 @@ __END__
 
 =head1 NAME
 
-CLI::Framework::Command::Console - Built-in CLIF command supporting
+CLI::Framework::Command::Console - CLIF built-in command supporting
 interactive mode
 
 =head1 SEE ALSO
 
-CLI::Framework::Command
+L<run_interactive|CLI::Framework::Application/run_interactive>
+
+L<CLI::Framework::Command::Menu>
+
+L<CLI::Framework::Command>
 
 =cut

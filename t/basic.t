@@ -65,12 +65,12 @@ sub test_command_requests {
         my $rv;
         if( $invalid ) {
             # run() with invalid command in @ARGV (expect false return value)...
-            eval{ $rv = $app->run() };
+            eval{ $rv = $app->run( initialize => 1 ) };
             ok(! $rv, "invalid command '$request_string'" );
         }
         else {
             # run() with valid command in @ARGV (expect true return value)...
-            eval { $rv = $app->run() };
+            eval { $rv = $app->run( initialize => 1 ) };
             ok( $rv, "valid command '$request_string'" );
         }
         # (only check the last-run command if the expected value was passed)

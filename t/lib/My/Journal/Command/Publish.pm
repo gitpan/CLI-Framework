@@ -24,8 +24,8 @@ sub option_spec {
 sub run {
     my ($self, $opts, @args) = @_;
 
-    my $db = $self->session('db');
-    croak "DB not initialized in session" unless $db;
+    my $db = $self->cache->get('db');
+    croak "DB not initialized in cache" unless $db;
 
     my @entries = $db->all_entries();
     my @entries_output;

@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               CLI-Framework
-version:            0.02
+version:            0.03_01
 abstract:           Build standardized, flexible, testable command-line applications
 author:
     - Karl Erisman <karl.erisman@icainformatics.org>
@@ -13,7 +13,8 @@ build_requires:
 requires:
     Carp:                 0
     Class::Inspector:     0
-    Class::ISA:           0
+    Exception::Class:     0
+    Exception::Class::TryCatch:  0
     File::Spec:           0
     Getopt::Long::Descriptive:  0
     Term::ReadLine:       0

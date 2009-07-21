@@ -39,4 +39,8 @@ __END__
 
 =head1 PURPOSE
 
+Test to ensure that the proper class hierarchy for registered commands is
+established with the correct parent-child relationships as defined by CLIF
+Command subclasses.
+
 =cut

@@ -17,7 +17,7 @@ sub usage_text {
 sub run {
     my ($self, $opts, @args) = @_;
     
-    my $app = $self->app(); # metacommand is app-aware
+    my $app = $self->get_app(); # metacommand is app-aware
 
     my $tree = command_tree( $app );
     $tree =~ s/^/\t/gm;
@@ -40,16 +40,33 @@ sub command_tree {
     # For every command registered into the root object (either a CLIF
     # Application or a CLIF Command), append its tree representation to the
     # output object...
-    my @command_names = $root->get_registered_command_names();
+
+    # Use proper accessors for object type...
+    my $registered_command_names_accessor = 'registered_command_names';
+    my $registered_command_obj_accessor = 'registered_command_object';
+    if( $root->isa('CLI::Framework::Command') ) {
+        $registered_command_names_accessor = 'registered_subcommand_names';
+        $registered_command_obj_accessor = 'registered_subcommand_object';
+    }
+    my @command_names;
+    {   no strict 'refs';
+        @command_names = $root->$registered_command_names_accessor;
+    }
     for my $command_name (@command_names) {
-        $tree->{text} .= ' 'x$indent . $command_name . "\n";
+#FIXME: show a tree of command names
+#        $tree->{text} .= ' 'x$indent . $command_name . "\n";
 
-        my $command_obj = $root->get_registered_command( $command_name );
+        my $command_obj;
+        {   no strict 'refs';
+            $command_obj = $root->$registered_command_obj_accessor( $command_name );
+        }
 
-#FIXME:could do this (instead of using $command_name) to show a tree of the
-#       actual names of classes (Perl package names) defining the commands:
-#my $x = ref $command_obj;
-#$tree->{text} .= ' 'x$indent . $x . "\n";
+#FIXME: show a tree of Perl package names defining the commands (including
+#   source files they were defined in):
+my $source = Class::Inspector->loaded_filename( ref $command_obj );
+$source ||= 'defined inline';
+my $x = ref ($command_obj) . " ($source)";
+$tree->{text} .= ' 'x$indent . $x . "\n";
 
         # Recursive call (NOTE: passing output object reference which will act
         # as an accumulator)...
@@ -73,6 +90,6 @@ application
 
 =head1 SEE ALSO
 
-CLI::Framework::Command
+L<CLI::Framework::Command>
 
 =cut

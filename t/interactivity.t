@@ -40,11 +40,11 @@ my $canned_request = [
 }
 #~~~~~~
 
-ok( ! $app->is_interactive(), 'just after construction, application is non-interactive' );
+ok( ! $app->get_interactivity_mode(), 'just after construction, application is non-interactive' );
 ok( $app->set_interactivity_mode(1), 'interactivity mode set' );
-ok( $app->is_interactive(), 'after turning ON interactivity mode, application state is interactive' );
+ok( $app->get_interactivity_mode(), 'after turning ON interactivity mode, application state is interactive' );
 
-my @valid_commands = $app->valid_commands();
+my @valid_commands = keys %{ $app->command_map() };
 my @noninteractive_commands = $app->noninteractive_commands();
 
 # We expect the interactive commands to be those which are valid but NOT non-interactive...

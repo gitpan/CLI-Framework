@@ -1,5 +1,58 @@
 Revision history for CLI::Framework
 
 0.01    2009-06-18
+
         Initial release.
 
+0.02    2009-06-18
+
+        Documentation corrections.
+
+0.03    FIXME:<release date>
+
+		* Corrected broken dependencies (Exception::Class)
+		
+		* Documentation improvements
+		    + refined existing documentation
+		    + added Tutorial
+		
+		* Concept of "session" replaced with the "cache" (which can hold data shared
+		  between separate components of a CLIF application)
+		    
+		* Now supporting custom error handling capability (new handle_exception() hook)
+		
+		* Built-in command CLI::Framework::Command::Menu improved for better
+		  formatting
+		
+		* New features
+		    + inline declaration of CLIF subclasses (both Application and
+		      Command classes) is now supported (one file can contain everything)
+		    + new built-in command CLI::Framework::Command::Alias
+		
+		***
+		*** ATTENTION: interface has changed! Most noteworthy changes follow...
+		***
+		
+		* REPLACED  CLI::Framework::Application::is_valid_command()
+		  WITH      is_valid_command_pkg()
+		  AND       is_valid_command_name()
+		* REMOVED   CLI::Framework::Application::command_search_path()
+		  (no longer needed with the new command registration strategy)
+		* CHANGED   CLI::Framework::Application::get_registered_command_names()
+		  TO        registered_command_names()
+		* REMOVED   CLI::Framework::Command::get_registered_command_names()
+		* CHANGED   CLI::Framework::Command::get_registered_command()
+		  TO        registered_command_object()
+		* CHANGED   CLI::Framework::Command::get_registered_subcommand()
+		  TO        registered_subcommand_object()
+		* REMOVED   CLI::Framework::Command::register_command()
+		* ADDED     CLI::Framework::Command::package_is_registered()
+		* CHANGED   CLI::Framework::Application::is_interactive()
+		  TO        get_interactivity_mode()
+		* CHANGED   CLI::Framework::Command::Meta::app() changed
+		  TO        get_app()
+		* REPLACED  CLI::Framework::Application::valid_commands()
+		  WITH      CLI::Framework::Application::command_map()
+		            (a hash mapping command names to package names)
+		
+		* CLI::Framework::Application::run() now accepts param 'initialize'

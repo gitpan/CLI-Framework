@@ -14,7 +14,7 @@ sub init {
     my ($self, $opts) = @_;
 
     # Store App's verbose setting where it will be accessible to commands...
-    $self->session( 'verbose' => $opts->{verbose} );
+    $self->cache->set( 'verbose' => $opts->{verbose} );
 
 }
 
@@ -28,7 +28,13 @@ sub usage_text {
     }
 }
 
-sub valid_commands { qw( summary console ) }
+sub command_map {
+    {
+        summary => 'My::PerlFunctions::Command::Summary',
+        console => 'CLI::Framework::Command::Console',
+        menu    => 'CLI::Framework::Command::Menu',
+    }
+}
 
 #-------
 1;

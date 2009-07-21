@@ -26,7 +26,7 @@ sub run {
 
     my $entry_text = shift @args;
 
-    my $db = $self->session( 'db' );
+    my $db = $self->cache->get( 'db' );
     my $entry_id = $db->insert_entry( $entry_text );
 
     my $tags = $opts->{tag};

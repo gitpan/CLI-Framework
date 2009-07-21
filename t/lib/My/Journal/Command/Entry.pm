@@ -31,7 +31,7 @@ sub option_spec {
 
 sub subcommand_alias {
     return unless ref $_[0] eq __PACKAGE__; # non-inheritable behavior
-    {
+    (
         a   => 'add',
         s   => 'search',
         p   => 'print',
@@ -42,7 +42,7 @@ sub subcommand_alias {
 
         m   => 'modify',
         mod => 'modify',
-    }
+    )
 }
 
 sub validate {
@@ -52,7 +52,7 @@ sub validate {
     # ...
 }
 
-sub notify {
+sub notify_master {
     my ($self, $subcommand, $opts, @args ) = @_;
     return unless ref $_[0] eq __PACKAGE__; # non-inheritable behavior
 
@@ -84,10 +84,8 @@ sub usage_text {
 }
 
 sub option_spec {
-    (
-        [ 'regex=s' => 'regex' ],
-        [ 'tag=s@'   => 'tag' ],
-    )
+    [ 'regex=s' => 'regex' ],
+    [ 'tag=s@'   => 'tag' ],
 }
 
 sub validate {
@@ -98,27 +96,35 @@ sub validate {
 sub run {
     my ($self, $opts, @args) = @_;
 
-    my $regex = $opts->{regex};
-    my $tags = $opts->{tag};
+    my $regex   = $opts->{regex};
+    my $tags    = $opts->{tag};
 
-    warn "searching...\n" if $self->session('verbose');
+    my $r = eval { qr/$regex/ };
+    $r ||= qr/.*/;
+    warn "searching...\n" if $self->cache->get('verbose');
 
-    my $db = $self->session('db');  # model class object
+    my $db = $self->cache->get('db');  # model class object
 
     # Show a brief summary of truncated entries with their ids...
-    my @tagged_entries;
-    for my $tag ( @$tags ) {
-        push @tagged_entries, $db->entries_by_tag($tag);
-    }
-    my @matching;
-    for my $entry (@tagged_entries) {
-        if( $entry->{entry_text} =~ /$regex/m ) {
-            my $entry_summary = sprintf "%10d: %s",
-                $entry->{id}, substr( $entry->{entry_text}, 0, 80 );
-            push @matching, $entry_summary;
+    my @entries;
+    if( defined $tags ) {
+        for my $tag ( @$tags ) {
+            push @entries, $db->entries_by_tag($tag);
         }
     }
-    return join "\n", @matching;
+    else {
+        @entries = $db->all_entries();
+    }
+    my $matching;
+    for my $entry (@entries) {
+        if( $entry->{entry_text} =~ /$r/m ) {
+            my $id = $entry->{id};
+            my $entry_summary = sprintf "%10d: %s",
+                $id, substr( $entry->{entry_text}, 0, 80 );
+            $matching->{$id} = $entry_summary;
+        }
+    }
+    return join "\n", values %$matching;
 }
 
 #-------

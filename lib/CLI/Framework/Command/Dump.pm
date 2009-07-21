@@ -19,7 +19,7 @@ sub usage_text {
 sub run {
     my ($self, $opts, @args) = @_;
 
-    my $result = Dumper($self->app()) . "\n";
+    my $result = Dumper($self->get_app()) . "\n";
     return $result;
 }
 
@@ -32,11 +32,11 @@ __END__
 
 =head1 NAME
 
-CLI::Framework::Command::Dump - Built-in CLIF command to show the internal
+CLI::Framework::Command::Dump - CLIF built-in command to show the internal
 state of a running application
 
 =head1 SEE ALSO
 
-CLI::Framework::Command
+L<CLI::Framework::Command>
 
 =cut

@@ -22,7 +22,7 @@ sub validate {
 sub run {
     my ($self, $opts, @args) = @_;
 
-    my $db = $self->session('db');
+    my $db = $self->cache->get('db');
     my @entries;
     for my $id (@args) {
         my $entry = $db->entry_by_id( $id );

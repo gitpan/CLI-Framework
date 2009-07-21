@@ -5,9 +5,7 @@ use strict;
 use warnings;
 
 sub option_spec {
-    (
-        [ 'name=s' => 'name of perl function' ],
-    )
+    [ 'name=s' => 'name of perl function' ],
 }
 
 sub validate { 
@@ -19,7 +17,7 @@ sub validate {
 sub run {
     my ($self, $opts, @args) = @_;
 
-    print "[finding function...]\n" if $self->session('verbose');
+    print "[finding function...]\n" if $self->cache->get('verbose');
 
     while(<DATA>) {
         my ($name) = (m/(.*?)\s+\- /);

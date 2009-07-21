@@ -17,12 +17,12 @@ sub usage_text {
 sub run {
     my ($self, $opts, @args) = @_;
 
-    my $app = $self->app(); # metacommand is app-aware
+    my $app = $self->get_app(); # metacommand is app-aware
 
     # If interactive, exclude commands that do not apply in interactive mode...
-    my @command_set = $app->is_interactive()
+    my @command_set = $app->get_interactivity_mode()
         ? $app->get_interactive_commands()
-        : $app->valid_commands();
+        : keys %{ $app->command_map() };
 
     my $result = join(', ', map { lc $_ } @command_set ) . "\n";
     return $result;
@@ -37,11 +37,11 @@ __END__
 
 =head1 NAME
 
-CLI::Framework::Command::List - Built-in CLIF command to print a list of
+CLI::Framework::Command::List - CLIF built-in command to print a list of
 commands available to the running application
 
 =head1 SEE ALSO
 
-CLI::Framework::Command
+L<CLI::Framework::Command>
 
 =cut

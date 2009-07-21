@@ -14,7 +14,7 @@ sub new {
     my $sqlite_db_path = $args{ dbpath } or croak 'path to SQLite DB file required';
 
     # Connect to database...
-    my $dbh = DBI->connect( 'dbi:SQLite:dbname=t/db/myjournal.sqlite',
+    my $dbh = DBI->connect( "dbi:SQLite:dbname=$sqlite_db_path",
         { AutoCommit => 1, RaiseError => 1, ShowErrorStatement => 1 }
     );
     bless { _dbh => $dbh }, $class;

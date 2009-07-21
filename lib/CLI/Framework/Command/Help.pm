@@ -17,7 +17,7 @@ sub usage_text {
 sub run {
     my ($self, $opts, @args) = @_;
 
-    my $app = $self->app(); # metacommand is app-aware
+    my $app = $self->get_app(); # metacommand is app-aware
 
     my $usage;
     my $command_name = shift @args;
@@ -27,7 +27,7 @@ sub run {
         # (do not show command-specific usage message for non-interactive
         # commands when in interactive mode)
         $usage = $app->usage( $command_name, @args )
-            unless( $app->is_interactive() && ! $app->is_interactive_command($command_name) );
+            unless( $app->get_interactivity_mode() && ! $app->is_interactive_command($command_name) );
     }
     # Fall back to application usage message...
     $usage ||= $app->usage();
@@ -43,10 +43,11 @@ __END__
 
 =head1 NAME
 
-CLI::Framework::Command::Help - Built-in command to print application or command-specific usage messages
+CLI::Framework::Command::Help - CLIF built-in command to print application or
+command-specific usage messages
 
 =head1 SEE ALSO
 
-CLI::Framework::Command
+L<CLI::Framework::Command>
 
 =cut

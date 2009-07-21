@@ -3,7 +3,6 @@ use base qw( CLI::Framework::Command );
 
 use strict;
 use warnings;
-use Carp;
 
 sub run {
     my ($self, $opts, @args) = @_;

@@ -26,7 +26,7 @@ sub validate {
 sub run {
     my ($self, $opts, @args) = @_;
 
-    my $db = $self->session('db');
+    my $db = $self->cache->get('db');
     $db->delete_entry( $_ ) for (@args);
 
     return;

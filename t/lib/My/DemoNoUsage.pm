@@ -15,7 +15,12 @@ sub option_spec {
     )
 }
 
-sub valid_commands { qw( tree a ) }
+sub command_map {
+    {
+        tree    => 'CLI::Framework::Command::Tree',
+        a       => 'My::DemoNoUsage::Command::A',
+    }
+}
 
 #-------
 1;
