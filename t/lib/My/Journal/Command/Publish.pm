@@ -37,7 +37,7 @@ sub run {
 
         push @entries_output, $entry_output;
     }
-print 'FIXME: For now, just pretend that this data gets published in the ',
+print 'Pretend that this data gets published in the ',
 'requested format, using a specified template, and sent to a named ',
 "output file\n\n";
     return join("\n", @entries_output) . "\n";

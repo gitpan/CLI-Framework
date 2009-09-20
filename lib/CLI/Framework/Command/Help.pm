@@ -22,6 +22,10 @@ sub run {
     my $usage;
     my $command_name = shift @args;
 
+    # Recognize help requests that refer to the target command by an alias...
+    my %alias = $app->command_alias();
+    $command_name = $alias{$command_name} if $command_name && exists $alias{$command_name};
+
     # First, attempt to get command-specific usage message...
     if( $command_name ) {
         # (do not show command-specific usage message for non-interactive

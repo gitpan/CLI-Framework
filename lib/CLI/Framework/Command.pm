@@ -13,23 +13,6 @@ use Class::Inspector;
 
 use CLI::Framework::Exceptions qw( :all );
 
-#FIXME-TODO:
-#our %CLASSES; # remember which classes have been auto-generated
-#
-#sub import {
-#    my ($class, %import_args) = @_;
-#
-#    # If caller has supplied import args, CLIF's "inline form" is being used;
-#    # we need to generate command classes dynamically...
-#    while( my ($cmd_pkg, $cmd_def) = each %import_args ) {
-#
-##FIXME: Create the new classes named in $cmd_pkg, injecting the subs indicated
-## (whether explicitly or implicitly) by the contents of $cmd_def...
-#
-##        $cmd_obj = __PACKAGE__->new();
-#    }
-#}
-
 ###############################
 #
 #   OBJECT CONSTRUCTION
@@ -279,12 +262,10 @@ sub package_is_registered {
 #
 ###############################
 
-#FIXME:overriding name() causes problems
-
-# Use base name of package as command name...
 sub name {
     my ($cmd) = @_;
 
+    # Use base name of package as command name...
     my $pkg = ref $cmd;
     my @pkg_parts = split /::/, $pkg;
     return lc $pkg_parts[-1];
@@ -329,11 +310,11 @@ commands inherit from this class.
 
 =item Subcommands
 
-Commands can have "subcommands," which are also objects of this class.
-Subcommands can, in turn, have their own subcommands, and this pattern may
-repeat indefinitely.
+Commands can have "subcommands," which are also objects of
+CLI::Framework::Command.  Subcommands can, in turn, have their own
+subcommands, and this pattern may repeat indefinitely.
 
-NOTE that in this documentation, the term "command" may be used to refer to both
+B<Note> that in this documentation, the term "command" may be used to refer to both
 commands and subcommands.
 
 =item Registration of subcommands
@@ -414,13 +395,13 @@ associated application.  These methods support those needs.
 
 Set the internal cache object for this instance.
 
-See L<cache|CLI::Framework::Application/cache>.
+See L<cache|CLI::Framework::Application/cache()>.
 
 =head2 cache()
 
-Retreive the internal cache object for this instance.
+Retrieve the internal cache object for this instance.
 
-See L<cache|CLI::Framework::Application/cache> for an explanation of how to
+See L<cache|CLI::Framework::Application/cache()> for an explanation of how to
 use this simple cache object.
 
 =head1 COMMAND DISPATCHING
@@ -428,9 +409,9 @@ use this simple cache object.
 =head2 get_default_usage() / set_default_usage( $default_usage_text )
 
 Get or set the default usage message for the command.  This message is used
-by L<usage|/usage>.
+by L<usage|/usage( $command_name, @subcommand_chain )>.
 
-NOTE: C<get_default_usage()> merely retrieves the usage data that has already
+B<Note>: C<get_default_usage()> merely retrieves the usage data that has already
 been set.  CLIF only sets the default usage message for a command when
 processing a run request for the command.  Therefore, the default usage message
 for a command may be empty (if a run request for the command has not been
@@ -460,20 +441,20 @@ Logically, here is how the usage message is produced:
 =item *
 
 If registered subcommand(s) are given, attempt to get usage message from a
-subcommand (NOTE that a sequence of subcommands could be given, e.g.
-C<$cmd->usage('task', 'list' 'completed')>, which would result in the usage message for final
-subcommand, C<'completed'>).  If no usage message is defined for the subcommand,
-the usage message for the command is used instead.
+subcommand (B<Note> that a sequence of subcommands could be given, e.g.
+C<< $cmd->usage('task', 'list' 'completed') >>, which would result in the usage
+message for final subcommand, C<'completed'>).  If no usage message is defined
+for the subcommand, the usage message for the command is used instead.
 
 =item *
 
-If the command has implemented L<usage_text|/usage_text>, its return value is
+If the command has implemented L<usage_text|/usage_text()>, its return value is
 used as the usage message.
 
 =item *
 
 Finally, if no usage message has been found, the default usage message
-produced by L<get_default_usage|/get_default_usage> is returned.
+produced by L<get_default_usage|/get_default_usage()> is returned.
 
 =back
 
@@ -496,9 +477,10 @@ method of only the deepest-nested subcommand (because C<dispatch()> will keep
 forwarding to successive subcommands until the args no longer indicate that a
 subcommand is requested).  Furthermore, the only command that can receive args
 is the final subcommand in the chain (but all commands in the chain can receive
-options).  However, B<NOTE> that each command in the chain can affect the
+options).  However, B<Note> that each command in the chain can affect the
 execution process through its
-L<notify_of_subcommand_dispatch|notify_of_subcommand_dispatch> method.
+L<notify_of_subcommand_dispatch|notify_of_subcommand_dispatch( $subcommand, $cmd_opts, @args )>
+method.
 
 =head1 COMMAND REGISTRATION
 
@@ -529,24 +511,19 @@ returns C<$subcmd_obj>.
 Return a true value if the named class is registered as a subcommand.  Returns
 a false value otherwise.
 
+=head2 name()
+
+    $s = My::Command::Squeak->new();
+    $s->name();    # => 'squeak'
+
+C<name()> takes no arguments and returns the name of the command.  This method uses the normalized base name of the package as the command name, e.g. the command defined by the package My::Application::Command::Xyz would be named 'xyz'.
+
 =head1 COMMAND SUBCLASS HOOKS
 
 Just as CLIF Applications have hooks that subclasses can use, CLIF Commands are
 able to influence the command dispatch process via several hooks.  Except
 where noted, all hooks are optional -- subclasses may choose not to override
 them.
-
-=head2 name()
-
-    $s = My::Command::Squeak->new();
-    $s->name();    # => 'squeak'
-
-C<name()> takes no arguments and returns the name of the command.  The
-default implementation of this method uses the normalized base name of the
-package as the command name, e.g. the command defined by the package
-My::Application::Command::Xyz would be named 'xyz'.
-
-Subclasses may override this if a different naming scheme is desired.
 
 =head2 option_spec()
 
@@ -594,8 +571,8 @@ C<validate()> is called in void context.  It is expected to throw an exception
 if validation fails.  This allows your validation routine to provide a
 context-specific failure message.
 
-NOTE that Getop::Long::Descriptive performs some validation of its own based
-on the L<option_spec|/option_spec>.  However, C<validate()> allows more
+B<Note> that Getop::Long::Descriptive performs some validation of its own based
+on the L<option_spec|/option_spec()>.  However, C<validate()> allows more
 flexibility in validating command options and also allows validation of
 arguments.
 
@@ -640,8 +617,9 @@ information for the command.  It is used automatically to provide
 context-specific help.
 
 Implementing this method is optional.  See
-L<usage|CLI::Framework::Application/usage> for details on how usage
-information is generated within the context of a CLIF application.
+L<usage|CLI::Framework::Application/usage( $command_name, @subcommand_chain )>
+for details on how usage information is generated within the context of a CLIF
+application.
 
 =head2 run( $cmd_opts, @args )
 
@@ -653,18 +631,19 @@ their user-provided values as hash values.
 
 C<@args> is a list of the command arguments.
 
-The default implementation of this method simply calls L<usage|usage> to show
-help information for the command.  Therefore, subclasses will usually override
-C<run()> (Occasionally, it is useful to have a command that does little or
-nothing on its own but has subcommands that define the real behavior.  In such
-relatively uncommon cases, it may not be necessary to override C<run()>).
+The default implementation of this method simply calls
+L<usage|usage( $subcommand_name, @subcommand_chain )> to show help information
+for the command.  Therefore, subclasses will usually override C<run()>
+(Occasionally, it is useful to have a command that does little or nothing on
+its own but has subcommands that define the real behavior.  In such relatively
+uncommon cases, it may not be necessary to override C<run()>).
 
 If an error occurs during the execution of a command via its C<run()> method,
 the C<run()> method code should throw an exception.  The exception will be
 caught and handled appropriately by CLIF.
 
 The return value of C<run()> is treated as data to be output by the
-L<render|CLI::Framework::Application/render> method in your CLIF Application
+L<render|CLI::Framework::Application/render( $output )> method in your CLIF Application
 class.  B<Note that nothing should be printed directly in your implementation of
 C<run>>.  If no output is to be produced, your C<run()> method should return
 C<undef> or empty string.
@@ -675,7 +654,7 @@ C<undef> or empty string.
 
 =item C<< Error: failed to instantiate command package <command pkg> via new() >>
 
-L<manufacture|manufacture> was asked to manufacture an object of class
+L<manufacture|manufacture( $command_package )> was asked to manufacture an object of class
 <command pkg>, but failed while trying to invoke its constructor.
 
 =item C<< Error: failed to instantiate subcommand '<class>' via method new() >>
@@ -685,7 +664,7 @@ C<require()d>) was unsuccessful.
 
 =item C<< cannot opendir <dir> >>
 
-While trying to L<manufacture|manufacture> subcommands in a directory tree,
+While trying to L<manufacture|manufacture( $command_package )> subcommands in a directory tree,
 calling C<opendir()> on the subdirectory with the name of the parent command
 failed.
 
@@ -709,12 +688,14 @@ L<CLI::Framework::Exceptions>
 
 =head1 SEE ALSO
 
+L<CLI::Framework::Tutorial>
+
 L<CLI::Framework::Application>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (c) 2009 Karl Erisman (karl.erisman@icainformatics.com), ICA
-Informatics. All rights reserved.
+Copyright (c) 2009 Karl Erisman (karl.erisman@icainformatics.com), Informatics
+Corporation of America. All rights reserved.
 
 This is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself. See perlartistic.

@@ -2,9 +2,8 @@ package CLI::Framework::Application;
 
 use strict;
 use warnings;
-use warnings::register;
 
-our $VERSION = '0.03_01';
+our $VERSION = '0.03';
 
 use Getopt::Long::Descriptive;
 use Exception::Class::TryCatch;
@@ -20,15 +19,6 @@ use constant REQUIRED_BUILTINS => qw(
 use constant REQUIRED_BUILTINS_INTERACTIVE => qw(
     CLI::Framework::Command::Menu
 );
-
-#FIXME-TODO:
-#sub import {
-#    my ($class, $app_pkg, $app_def) = @_;
-#
-#    # If caller has supplied import args, CLIF's "inline form" is being used;
-#    # we need to generate the application class dynamically...
-#
-#}
 
 #-------
 
@@ -544,7 +534,7 @@ sub read_cmd {
 
     require Text::ParseWords;
 
-    # Retreive or cache Term::ReadLine object (this is necessary to save
+    # Retrieve or cache Term::ReadLine object (this is necessary to save
     # command-line history in persistent object)...
     my $term = $app->{_readline};
     unless( $term ) {
@@ -552,11 +542,6 @@ sub read_cmd {
         $term = Term::ReadLine->new('CLIF Application');
         select $term->OUT;
         $app->{_readline} = $term;
-
-#FIXME-TODO:
-#        # Arrange for command-line completion...
-#        my $attribs = $term->Attribs;
-#        $attribs->{completion_function} = $app->_cmd_request_completions();
     }
     # Prompt for the name of a command and read input from STDIN.
     # Store the individual tokens that are read in @ARGV.
@@ -567,17 +552,6 @@ sub read_cmd {
     }
     return 1;
 }
-
-##FIXME:this should only return interactive commands; it should pay attention
-##to its text/line/start args, ...; also: make it work with subcommands
-##  --see Term::Readline::Gnu
-#sub _cmd_request_completions {
-#    my ($app) = @_;
-#    return sub {
-#        my ($text, $line, $start) = @_;
-#        return keys %{ $app->command_map() };
-#    }
-#}
 
 sub is_quit_signal {
     my ($app, $command_name) = @_;
@@ -592,10 +566,7 @@ sub is_quit_signal {
 #
 ###############################
 
-#FIXME:application name -- worthwhile to include?
-#sub name { }
-
-#FIXME: consider making default implementation of init():
+#XXX-CONSIDER: consider making default implementation of init():
 #       $app->set_current_command('help') if $opts->{help}
 sub init { 1 }
 
@@ -634,7 +605,7 @@ sub handle_exception {
 sub render {
     my ($app, $output) = @_;
 
-#FIXME: consider built-in features to help simplify associating templates
+#XXX-CONSIDER: consider built-in features to help simplify associating templates
 #with commands (each command would probably have its own template for its
 #output)
     print $output;
@@ -741,8 +712,8 @@ Convenience for simple cases, flexibility for complex cases
 
 =item *
 
-Support for both non-interactive and interactive modes (with little
-additional work -- define the necessary hooks, both modes are supported)
+Support for both non-interactive and interactive modes (with almost no
+additional work -- define the necessary hooks and both modes will be supported)
 
 =item *
 
@@ -810,20 +781,20 @@ exception handlers
 =item *
 
 Application Script - The wrapper program that invokes the CLIF Application's
-L<run|/run> method.  It may or may not also include the definitions of
-Application and Command packages.
+L<run|/run()> method.  It may or may not also include the code for Application
+and Command packages.
 
 =item *
 
 Metacommand - An application-aware command.  Metacommands are subclasses of
-C<CLI::Framework::Command::Meta>.  They are identical to regular commands except
+L<CLI::Framework::Command::Meta>.  They are identical to regular commands except
 they hold a reference to the application within which they are running.  This
 means they are able to "know about" and affect the application.  For example,
 the built-in command 'Menu' is a Metacommand because it needs to produce a
 list of the other commands in its application.
 
 In general, your commands should be designed to operate independently of the
-application, so they should simply inherit from C<CLI::Framework::Command>.
+application, so they should simply inherit from L<CLI::Framework::Command>.
 The Metacommand facility is useful but it is best to avoid using it unless it
 is really needed.
 
@@ -831,16 +802,10 @@ is really needed.
 
 Non-interactive Command - In interactive mode, some commands need to be
 disabled.  For instance, the built-in 'console' command should not be presented
-as a menu option in interactive mode because it is already running.  You can
+as a menu option in interactive mode because it is already running (the
+console presents a command menu and responds to user selection).  You can
 designate which commands are non-interactive by overriding the
-C<noninteractive_commands> method.
-
-=item *
-
-Options hash - A Perl hash that is created by CLIF based on user input.  The
-hash keys are option names (from among the valid options defined in an
-application's L<option_spec|/option_spec> method) and the values are the data
-passed by the user via the command line.
+L<noninteractive_commands|/noninteractive_commands()> method.
 
 =item *
 
@@ -857,7 +822,7 @@ When a command of the form:
 
     $ app [app-opts] <cmd> [cmd-opts] { <cmd> [cmd-opts] {...} } [cmd-args]
 
-...causes your application script, <app>, to invoke the C<run()> method in
+...causes your application script, <app>, to invoke the L<run|/run()> method in
 your application class, CLI::Framework::Application performs the following
 actions:
 
@@ -891,10 +856,10 @@ These steps are explained in more detail below...
 
 Parse the application options C<< [app-opts] >>, command name C<< <cmd> >>,
 command options C<< [cmd-opts] >>, and the remaining part of the command line
-(which includes command arguments C<< [cmd-args] >> for the last command and
-may include multiple subcommands; everything between the inner brackets
-(C<< { ... } >>) represents recursive subcommand processing -- the C<...>
-represents another string of C<< <cmd> [cmd-opts] {...} >>).
+(which includes command arguments C<< [cmd-args] >> for the last command on
+the command line and may include multiple subcommands; everything between the
+inner brackets (C<< { ... } >>) represents recursive subcommand processing --
+the "C<...>" represents another string of "C<< <cmd> [cmd-opts] {...} >>").
 
 If the command request is not well-formed, it is replaced with the default
 command and any arguments present are ignored.  Generally, the default command
@@ -903,33 +868,35 @@ prints a help or usage message (but you may change this behavior if desired).
 =head2 Validation of application options
 
 Your application class can optionally define the
-L<validate_options|/validate_options> method.
+L<validate_options|/validate_options( $options_hash )> method.
 
 If your application class does not override this method, validation is
 skipped -- any received options are considered to be valid.
 
 =head2 Application initialization
 
-Your application class can optionally override the L<init|/init> method.
+Your application class can optionally override the L<init|/init( $options_hash )> method.
 This is a hook that can be used to perform any application-wide initialization
 that needs to be done independent of individual commands.  For example, your
-application may use the L<init|/init> method to connect to a database and
+application may use the L<init|/init( $options_hash )> method to connect to a database and
 store a connection handle which may be needed by most of the commands in your
 application.
 
 =head2 Command pre-dispatch
 
-Your application class can optionally have a L<pre_dispatch|/pre_dispatch>
+Your application class can optionally have a L<pre_dispatch|/pre_dispatch( $command_object )>
 method that is called with one parameter: the Command object that is about to
 be dispatched.
 
 =head2 Dispatching a command
 
-CLIF uses the L<dispatch|CLI::Framework::Command/dispatch> method to actually
-dispatch a specific command.  That method is responsible for running the
-command or delegating responsibility to a subcommand, if applicable.
+CLIF uses the L<dispatch|CLI::Framework::Command/dispatch( $cmd_opts, @args )>
+method to actually dispatch a specific command.  That method is responsible
+for running the command or delegating responsibility to a subcommand, if
+applicable.
 
-See L<dispatch|CLI::Framework::Command/dispatch> for the specifics.
+See L<dispatch|CLI::Framework::Command/dispatch( $cmd_opts, @args )> for the
+specifics.
 
 =head1 INTERACTIVITY
 
@@ -949,7 +916,7 @@ specific built-in commands (e.g. the Help command is a fundamental feature of
 all apps and the Menu command is required in interactive mode).  You can
 override any of the built-ins.
 
-A new application that does not override the L<command_map|/command_map> hook
+A new application that does not override the L<command_map|/command_map()> hook
 will include all of the built-ins listed below.
 
 The existing built-ins and their corresponding packages are as follows (for
@@ -959,36 +926,36 @@ more information on each, see the respective documentation):
 
 =item help
 
-L<CLI::Framework::Comand::Help>
+L<CLI::Framework::Command::Help>: print application or command-specific usage messages
 
 B<Note>: This command is registered automatically.  All CLIF apps must have
 the 'help' command defined (though this built-in can replaced by your subclass
 to change the 'help' command behavior or to do nothing if you specifically do
 not want a help command).
 
-=item list
+=item list: print a list of commands available to the running application
 
-L<CLI::Framework::Comand::List>
+L<CLI::Framework::Command::List>
 
-=item dump
+=item dump: show the internal state of a running application
 
-L<CLI::Framework::Comand::Dump>
+L<CLI::Framework::Command::Dump>
 
-=item tree
+=item tree: display a tree representation of the commands that are currently registered with the running application
 
-L<CLI::Framework::Comand::Tree>
+L<CLI::Framework::Command::Tree>
 
-=item alias
+=item alias: display the command aliases that are in effect for the running application and its commands
 
 L<CLI::Framework::Command::Alias>
 
-=item console
+=item console: invoke CLIF's interactive mode
 
-L<CLI::Framework::Comand::Console>
+L<CLI::Framework::Command::Console>
 
-=item menu
+=item menu: show a command menu including the commands that are available to the running application
 
-L<CLI::Framework::Comand::Menu>
+L<CLI::Framework::Command::Menu>
 
 B<Note>: This command is registered automatically when an application runs in
 interactive mode.  This built-in may be replaced by a user-defined 'menu'
@@ -1001,12 +968,12 @@ subclass of this one.
 
 =head2 new( [interactive => 1] )
 
-    My::Application->new( interactive => 1 );
+    $app = My::Application->new( interactive => 1 );
 
 Recognized parameters:
 
 C<interactive>: set this to a true value if the application is to be run
-interactively
+interactively (or call C<set_interactivity_mode> later)
 
 Constructs and returns a new CLIF Application object.  As part of this
 process, some validation is performed on L<SUBCLASS HOOKS|/SUBCLASS HOOKS>
@@ -1024,7 +991,7 @@ commands in an application.
 Returns a true value if the specified command class (package name) is valid
 within the application.  Returns a false value otherwise.
 
-A command class is "valid" if it is included in L<command_map|/command_map> or
+A command class is "valid" if it is included in L<command_map|/command_map()> or
 if it is a built-in command that was included automatically in the
 application.
 
@@ -1035,7 +1002,7 @@ application.
 Returns a true value if the specified command name is valid within the
 application.  Returns a false value otherwise.
 
-A command name is "valid" if it is included in L<command_map|/command_map> or
+A command name is "valid" if it is included in L<command_map|/command_map()> or
 if it is a built-in command that was included automatically in the
 application.
 
@@ -1044,7 +1011,7 @@ application.
     @registered_commands = $app->registered_command_names();
 
 Returns a list of the names of all registered commands.  These are the names
-that each command was given in L<command_map|/command_map> (plus any
+that each command was given in L<command_map|/command_map()> (plus any
 auto-registered built-ins).
 
 =head2 registered_command_object( $command_name )
@@ -1068,25 +1035,27 @@ Register a command to be recognized by the application.  This method accepts
 either the name of a command or a reference to a L<CLI::Framework::Command>
 object.
 
-If a L<CLI::Framework::Command> object is given and it is one of the commands
-specified to be valid, the command is registered and returned.
+If a L<CLI::Framework::Command> object is given and it is one of the command
+types specified (as a value in the hash returned by
+L<command_map|/command_map()>) to be valid, the command is registered and
+returned.
 
-If the name of a command (one of the keys in the L<command_map|/command_map>)
+If the name of a command (one of the keys in the L<command_map|/command_map()>)
 is given, the corresponding command class is registered and returned.
 
 If C<$cmd> is not recognized, an exception is thrown.
 
 =head2 get_default_command() / set_default_command( $default_cmd )
 
-C<get_default_command()> retrieves the name of the command that is currently
+C<get_defualt_command()> retrieves the name of the command that is currently
 set as the default command for the application.
 
     my $default_command = $app->get_default_command();
 
-Given a command name, C<set_default_command()> makes it the default command
-for the application.
+Given a command name, C<set_default_command> makes it the default command for
+the application.
 
-    $app->set_default_command( 'fly' );
+    $app->set_default_command( 'jump' );
 
 =head2 get_current_command() / set_current_command( $current )
 
@@ -1094,17 +1063,17 @@ C<get_current_command> returns the name of the current command (or the one that
 was most recently run).
 
     $status = $app->run();
-    print 'The command named: ', $app->get_current_command(), ' has completed';
+    print 'The command named: ', $app->get_current_command(), ' was just run';
 
 Given a command name, C<set_current_command> forwards execution to that command.
 This might be useful (for instance) to "redirect" to another command.
 
-    $app->set_current_command( 'roll' );
+    $app->set_current_command( 'fly' );
 
 =head2 get_default_usage() / set_default_usage( $default_usage )
 
 The "default usage" message is used as a last resort when usage information is
-unavailable by other means.  See F<usage|/usage>.
+unavailable by other means.  See L<usage|/usage( $command_name, @subcommand_chain )>.
 
 C<get_default_usage> gets the default usage message for the application.
 
@@ -1124,11 +1093,12 @@ C<set_default_usage> sets the default usage message for the application.
     # Command-specific usage...
     print $app->usage( $command_name, @subcommand_chain );
 
-Returns a usage message for the application or a specific command.
+Returns a usage message for the application or a specific (sub)command.
 
-If a command name is given, returns a usage message string for that command.
-If no command name is given or if no usage message is defined for the
-specified command, returns a general usage message for the application.
+If a command name is given (optionally with subcommands), returns a usage
+message string for that (sub)command.  If no command name is given or if no
+usage message is defined for the specified command, returns a general usage
+message for the application.
 
 Here is how the usage message is produced:
 
@@ -1136,19 +1106,20 @@ Here is how the usage message is produced:
 
 =item *
 
-If a valid command name (or alias) is given, attempt to get usage message from
-the command; if no usage message is defined for the command, use the
-application usage message instead.
+If a valid command name (or alias) is given, attempt to get a usage message from
+the command (this step takes into account C<@subcommand_chain> so that a
+subcommand usage message will be shown if applicable); if no usage message is
+defined for the command, use the application usage message instead.
 
 =item *
 
-If the application object has defined L<usage_text|/usage_text>, use its
+If the application object has defined L<usage_text|/usage_text()>, use its
 return value as the usage message.
 
 =item *
 
 Finally, fall back to using the default usage message returned by
-L<get_default_usage|/get_default_usage>.
+L<get_default_usage|/get_default_usage() / set_default_usage( $default_usage)>.
 
 =back
 
@@ -1156,7 +1127,7 @@ L<get_default_usage|/get_default_usage>.
 
 CLIF Applications may have the need for global data shared between all
 components (individual CLIF Commands and the Application object itself).
-C<cache()> provides a way for this data to be stored, retreived, and shared
+C<cache()> provides a way for this data to be stored, retrieved, and shared
 between components.
 
     $cache_object = $app->cache();
@@ -1167,7 +1138,7 @@ the resulting object:
     $cache_object->get( 'key' );
     $cache_object->set( 'key' => $value );
 
-NOTE: The underlying cache class is currently limited to these rudimentary
+B<Note>: The underlying cache class is currently limited to these rudimentary
 features.  In the future, the object returned by C<cache()> may be changed to
 an instance of a real caching class, such as L<CHI> (which would maintain
 backwards compatibility but offer expiration, serialization, multiple caching
@@ -1178,7 +1149,7 @@ backends, etc.).
     # For convenience when direct access to application is unnecessary:
     My::App->run();
 
-    # ...or using an object:
+    # ...or using a direct object reference:
     my $app = My::App->new();
     $app->run();
 
@@ -1192,12 +1163,12 @@ command.  It takes its input from @ARGV (which may be populated by a
 script running non-interactively on the command line) and dispatches the
 indicated command, capturing its return value.  The command's return value
 represents the output produced by the command.  This value is passed to
-L<render|render> for final display.
+L<render|render( $output )> for final display.
 
 If errors occur, they result in exceptions that are handled by
-L<handle_exception|/handle_exception>.
+L<handle_exception|/handle_exception( $e )>.
 
-C<run> accepts the following parameters:
+The following parameters are accepted:
 
 C<initialize>: This controls whether or not application initialization should
 be performed.  If not specified, initialization is performed upon the first
@@ -1231,7 +1202,7 @@ in interactive mode).  Returns a false value otherwise.
 
     my @interactive_commands = $app->get_interactive_commands();
 
-Return a list of all commands that are to be shown in interactive mode
+Return a list of all commands that are to be available in interactive mode
 ("interactive commands").
 
 =head2 run_interactive( [%param] )
@@ -1243,7 +1214,7 @@ Return a list of all commands that are to be shown in interactive mode
 
 Start an event processing loop to prompt for and run commands in sequence.  The
 C<menu> command is used to display available command selections (the built-in
-C<menu> command, C<CLI::Framework::Command::Menu>, will be used unless the
+C<menu> command, L<CLI::Framework::Command::Menu>, will be used unless the
 application defines its own C<menu> command).
 
 Within this loop, valid input is the same as in non-interactive mode except
@@ -1254,10 +1225,10 @@ entered -- see the description of the C<initialize> parameter below).
 The following parameters are recognized:
 
 C<initialize>: causes any application options that are present in C<@ARGV> to be
-procesed/validated and causes L<init|/init> to be invoked prior to entering the
-interactive event loop to recognize commands.  If C<run_interactive()> is
-called after app options have already been handled, this parameter can be
-omitted.
+procesed/validated and causes L<init|/init( $options_hash )> to be invoked
+prior to entering the interactive event loop to recognize commands.  If
+C<run_interactive()> is called after app options have already been handled,
+this parameter can be omitted.
 
 C<invalid_request_threshold>: the number of unrecognized command requests the
 user can enter before the menu is re-displayed.
@@ -1266,14 +1237,14 @@ user can enter before the menu is re-displayed.
 
     $app->read_cmd();
 
-This method is responsible for retreiving a command request and placing the
+This method is responsible for retrieving a command request and placing the
 user input into C<@ARGV>.  It is called in void context.
 
 The default implementation uses L<Term::ReadLine> to prompt the user and read a
 command request, supporting command history.
 
 Subclasses are free to override this method if a different means of
-accepting user input is needed.  This makes it possible to read command
+accepting user input is desired.  This makes it possible to read command
 selections without assuming that the console is being used for I/O.
 
 =head2 is_quit_signal()
@@ -1282,7 +1253,7 @@ selections without assuming that the console is being used for I/O.
 
 Given a string, return a true value if it is a quit signal (indicating that
 the application should exit) and a false value otherwise.
-L<quit_signals|/quit_signals> is an application subclass hook that
+L<quit_signals|/quit_signals()> is an application subclass hook that
 defines what strings signify that the interactive session should exit.
 
 =head1 SUBCLASS HOOKS
@@ -1302,14 +1273,14 @@ This hook is called in void context with these parameters:
 C<$options_hash> is a hash of pre-validated application options received and
 parsed from the command line.  The options hash has already been checked
 against the options defined to be accepted by the application in
-L<option_spec|/option_spec>.
+L<option_spec|/option_spec()>.
 
 This method allows CLIF applications to perform any common
 initialization tasks that are necessary regardless of which command is to be
 run.  Some examples of this include connecting to a database and storing a
-connection handle in the shared L<cache|/cache> slot for use by individual
+connection handle in the shared L<cache|/cache()> slot for use by individual
 commands, setting up a logging facility that can be used by each command by
-sotoring a logging object in the L<cache|/cache>, or initializing settings from
+storing a logging object in the L<cache|/cache()>, or initializing settings from
 a configuration file.
 
 =head2 pre_dispatch( $command_object )
@@ -1342,37 +1313,40 @@ perform validation of received options.
 
 C<$options_hash> is an options hash parsed from the command-line.
 
-This method should throw an exception if the options are invalid.
+This method should throw an exception if the options are invalid (C<die()> is
+sufficient).
 
 B<Note> that L<Getopt::Long::Descriptive>, which is used internally for part of the
 options processing, will perform some validation of its own based on the
-L<option_spec|/option_spec>.  However, the C<validate_options()> hook allows
-for additional flexibility in validating application options.
+L<option_spec|/option_spec()>.  However, the
+L<validate_options|CLI::Framework::Application/validate_options( $options_hash)>
+hook allows for additional flexibility in validating application options.
 
 =head2 command_map()
 
-C<command_map()> should return a (HASH ref) mapping between command names and
+Return a (HASH ref) mapping between command names and
 Command classes (classes that inherit from L<CLI::Framework::Command>).  The
 mapping is a hashref where the keys are names that should be used to install the
 commands in the application and the values are the package names of the packages
 that implement the corresponding commands, as in this example:
 
     sub command_map {
-    {
-        # custom commands:
-        fly     => 'My::Command::Fly',
-        run     => 'My::Command::Run',
+        {
+            # custom commands:
+            fly     => 'My::Command::Fly',
+            run     => 'My::Command::Run',
 
-        # overridden built-in commands:
-        menu    => 'My::Command::Menu',
+            # overridden built-in commands:
+            menu    => 'My::Command::Menu',
 
-        # built-in commands:
-        help    => 'CLI::Framework::Command::Help',
-        list    => 'CLI::Framework::Command::List',
-        tree    => 'CLI::Framework::Command::Tree',
-        'dump'  => 'CLI::Framework::Command::Dump',
-        console => 'CLI::Framework::Command::Console',
-        alias   => 'CLI::Framework::Command::Alias',
+            # built-in commands:
+            help    => 'CLI::Framework::Command::Help',
+            list    => 'CLI::Framework::Command::List',
+            tree    => 'CLI::Framework::Command::Tree',
+            'dump'  => 'CLI::Framework::Command::Dump',
+            console => 'CLI::Framework::Command::Console',
+            alias   => 'CLI::Framework::Command::Alias',
+        }
     }
 
 =head2 command_alias()
@@ -1409,7 +1383,7 @@ C<console> and C<menu>.
 An application can specify exactly what input represents a request to end an
 interactive session.  By default, the example definition above is used.
 
-=head2 handle_exception
+=head2 handle_exception( $e )
 
     sub handle_exception {
         my ($app, $e) = @_;
@@ -1426,7 +1400,7 @@ It receives an exception object (see L<Exception::Class::Base> for methods
 that can be called on the object).
 
 If not overridden, the default implementation extracts the error message from
-the exception object processes it through the L<render|/render> method
+the exception object processes it through the L<render|/render( $output )> method
 
 =head2 render( $output )
 
@@ -1437,7 +1411,7 @@ The default implementation simply attempts to print the C<$output> scalar,
 assuming that it is a string.
 
 Subclasses are encouraged to override this method to provide more
-sophisticated behavior such as processing the <$output> scalar through a
+sophisticated behavior such as processing the C<$output> scalar through a
 templating system, if desired.
 
 =head2 usage_text()
@@ -1448,22 +1422,17 @@ message for the overall application.
 
 =head1 ERROR HANDLING IN CLIF
 
-CLIF handles errors by throwing exceptions.  
+Internally, CLIF handles errors by throwing exceptions.  
 
-CLIF apps are free to handle errors using any desired strategy.
+The L<handle_exception/|handle_exception( $e )> method provides an opportunity
+for customizing the way errors are treated in a CLIF app.
 
-The main implication is that Application and Command class hooks such as
-L<validate_options|CLI::Framework::Application/validate_options> and
-L<validate|CLI::Framework::Command/validate> (remember to notice the specifics
-documented in the POD) are expected to indicate success or
-failure by throwing exceptions (via C<die()> or something more elaborate, such
-as exception objects).
-
-=head2 Warnings
-
-This module creates a new warnings category by its own name,
-C<CLI::Framework::Application>.  To turn of warnings for this module only,
-callers can say C<no warnings 'CLI::Framework::Application'>.
+Application and Command class hooks such as
+L<validate_options|CLI::Framework::Application/validate_options( $options_hash )>
+and L<validate|CLI::Framework::Command/validate( $cmd_opts, @args )> (remember
+to notice the specifics documented in the POD) are expected to indicate
+success or failure by throwing exceptions (via C<die()> or something more
+elaborate, such as exception objects).
 
 =head1 CONFIGURATION & ENVIRONMENT
 
@@ -1488,17 +1457,7 @@ L<CLI::Framework::Command>
 
 No known bugs.
 
-=head1 INTERFACE STABILITY
-
-CLIF is still young; modules in the CLI::Framework distribution are not yet
-interface-stable.  Because CLIF is feature-rich, more time is needed before I
-am confident enough in locking down the API.
-
-If you develop a CLIF app, please share your experience.  I am interested in
-improving CLIF's correctness, completeness, and clarity.  This will hasten the
-journey to interface stability.
-
-=head1 COMING SOON
+=head1 PLANS FOR FUTURE VERSIONS
 
 =over
 
@@ -1529,10 +1488,12 @@ simpler
 
 =head1 ACKNOWLEDGEMENTS
 
-Many thanks to my colleagues at Informatics Corporation of America who have
-assisted by providing ideas and bug reports, especially Allen May.
+Many thanks to Allen May and other colleagues at Informatics Corporation of
+America who have supported this development effort.
 
 =head1 SEE ALSO
+
+L<CLI::Framework::Tutorial>
 
 L<CLI::Framework::Command>
 

@@ -53,7 +53,7 @@ sub command_tree {
         @command_names = $root->$registered_command_names_accessor;
     }
     for my $command_name (@command_names) {
-#FIXME: show a tree of command names
+#XXX-ALTERNATIVE: show a tree of command names
 #        $tree->{text} .= ' 'x$indent . $command_name . "\n";
 
         my $command_obj;
@@ -61,7 +61,7 @@ sub command_tree {
             $command_obj = $root->$registered_command_obj_accessor( $command_name );
         }
 
-#FIXME: show a tree of Perl package names defining the commands (including
+#XXX-ALTERNATIVE: show a tree of Perl package names defining the commands (including
 #   source files they were defined in):
 my $source = Class::Inspector->loaded_filename( ref $command_obj );
 $source ||= 'defined inline';

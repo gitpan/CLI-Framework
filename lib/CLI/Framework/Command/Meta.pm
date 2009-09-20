@@ -40,7 +40,7 @@ the exception to that rule.
 
 =head2 get_app() / set_app( $app )
 
-Retreive or set the application object associated with a metacommand object.
+Retrieve or set the application object associated with a metacommand object.
 
     $app = $command->get_app();
 

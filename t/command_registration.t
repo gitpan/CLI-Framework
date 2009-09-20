@@ -17,7 +17,6 @@ is( $cmd->name(), 'console', 'command name is as expected' );
 ok( $cmd = $app->register_command( 'menu'   ), "register (overridden) 'menu' command" );
 ok( $cmd->isa( 'My::Journal::Command::Menu' ),
     "application-specific, overridden command returned instead of the built-in 'menu' command" );
-#FIXME:is it necessary for commands to have a name() method?
 is( $cmd->name(), 'menu', 'command name is as expected' );
 
 # Get and check list of all registered commands...

@@ -90,7 +90,7 @@ __END__
 
 =head1 NAME
 
-CLI::Framework::Exceptions - Exceptions used by CLIF.
+CLI::Framework::Exceptions - Exceptions used by CLIF
 
 =head1 EXCEPTION TYPES
 

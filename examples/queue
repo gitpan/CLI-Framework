@@ -64,6 +64,7 @@ sub usage_text {
 
     ARGUMENTS (subcommands):
         console:        run interactively
+        cmd-list:       list available commands
         enqueue:        add item to queue
         dequeue:        remove item from queue
         print:          print contents of queue

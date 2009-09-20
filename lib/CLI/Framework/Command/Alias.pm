@@ -19,19 +19,6 @@ sub usage_text {
     }
 }
 
-sub validate {
-    my ($self, $cmd_opts, @args) = @_;
-
-    my $app = $self->get_app();
-
-    # If an argument is provided, it should be a valid command name...
-    if( @args ) {
-        $app->is_valid_command_name( $args[0] )
-            or die "'", $args[0], "' is not a valid command\n";
-    }
-    return 1;
-}
-
 sub run {
     my ($self, $opts, @args) = @_;
 
@@ -39,14 +26,28 @@ sub run {
     my %cmd_alias_to_name = $app->command_alias();
     my $cmd = shift @args;
 
+    # Ignore non-interactive commands while in interactive mode...
+    if( $app->get_interactivity_mode() ) {
+        while( my ($k,$v) = each %cmd_alias_to_name ) {
+            if( ! $app->is_interactive_command( $v ) ) {
+                delete $cmd_alias_to_name{ $k };
+            }
+        }
+    }
     # Alias command only recognizes one argument: a top-level command...
     if( $cmd ) {
-        # Get formatted display of aliases to command...
+        # Recognize alias requests by alias...
+        $cmd = $cmd_alias_to_name{$cmd} if exists $cmd_alias_to_name{$cmd};
+
+        # Silently pass if invalid command...
+        return unless $app->is_valid_command_name( $cmd );
+
+        # Formatted display of aliases to specific command...
         my $summary = $self->_cmd_alias_hash_to_summary(
             \%cmd_alias_to_name,
             target => $cmd
         );
-        # Get formatted display of aliases to subcommand...
+        # Formatted display of aliases to subcommand...
         my $cmd_object = $app->registered_command_object( $cmd )
             || $app->register_command( $cmd );
         my %subcommand_alias = $cmd_object->subcommand_alias();
@@ -60,6 +61,7 @@ sub run {
         return $summary;
     }
     else {
+        # Formatted display of all aliases...
         my $summary = $self->_cmd_alias_hash_to_summary(
             \%cmd_alias_to_name,
         );
@@ -71,8 +73,6 @@ sub _cmd_alias_hash_to_summary {
     my ($self, $aliases, %param) = @_;
 
     my $target = $param{target};
-
-#FIXME: if in interactive mode, need to omit non-interactive commands
 
     my %name_to_alias_set;
     while( my ($alias, $name) = each %$aliases ) {

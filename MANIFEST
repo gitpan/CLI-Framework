@@ -1,6 +1,5 @@
 MANIFEST
 Changes
-FIXMEs
 lib/CLI/Framework/Command/Alias.pm
 lib/CLI/Framework/Command/Meta.pm
 lib/CLI/Framework/Command/Menu.pm
@@ -42,13 +41,11 @@ t/lib/My/DemoNestedSubcommands/Command1.pm
 t/lib/My/Journal.pm
 t/lib/My/DemoNoUsage/Command/A.pm
 t/lib/My/PerlFunctions/Command/Summary.pm
-t/demo-no-defined-usage.t
+t/no-defined-usage.t
 t/command_registration.t
-t/pod-coverage.t
-t/demo-nested-subcommands.t
+t/nested-subcommands.t
 t/basic.t
 t/define-classes-inline.t
-t/pod.t
 t/interactivity.t
 examples/queue
 examples/demo-simple.pl

@@ -4,18 +4,22 @@ use warnings;
 use lib 'lib';
 use lib 't/lib';
 
-use Test::More tests => 1;
+use Test::More tests => 2;
 
 use File::Spec;
 open( my $devnull, '>', File::Spec->devnull() );
 select $devnull;
 
-my $SHARED_KEY = 'shared-key';
-my $SHARED_VALUE = '*** producer was here ***';
+my ($SHARED_KEY, $SHARED_VALUE) = ('shared-key', '* producer was here *');
+
+my $SHARED_VALUE_CACHED_IN_INIT = '* shared value set in app init() method *';
 
 my $app = Test::Of::Session::Persistence->new();
-@ARGV = qw( prod a b );
+@ARGV = ( "--app_opt=$SHARED_VALUE_CACHED_IN_INIT", 'prod', 'a', 'b' );
 $app->run();
+
+is( $app->cache->get( 'app_opt' ), $SHARED_VALUE_CACHED_IN_INIT,
+    'init() method in application class correctly stores data in cache' );
 
 @ARGV = qw( cons );
 $app->run();
@@ -30,11 +34,24 @@ close $devnull;
 #
 ############################
 
+# application WRITES TO the cache
 package Test::Of::Session::Persistence;
 use base qw( CLI::Framework::Application );
 
 use strict;
 use warnings;
+
+sub option_spec {
+    [ 'app_opt=s' => 'option to test setting a cache key in init() method of application class' ],
+}
+
+sub init {
+    my ($self, $opts) = @_;
+
+    for my $key (keys %$opts ) {
+        $self->cache->set( $key => $opts->{$key} );
+    }
+}
 
 sub command_map {
     {
@@ -55,7 +72,7 @@ sub command_alias {
 #
 ############################
 
-# command to WRITE TO the cache
+# command that WRITES TO the cache
 package Producer;
 use base qw( CLI::Framework::Command );
 
@@ -79,7 +96,7 @@ sub run {
 
 #-------
 
-# command to READ FROM the cache
+# command that READS FROM the cache
 package Consumer;
 use base qw( CLI::Framework::Command );
 
@@ -89,6 +106,7 @@ use warnings;
 sub run {
     my ($self, $opts, @args) = @_;
     my $value_passed_by_producer = $self->cache->get( $SHARED_KEY );
+
     return $value_passed_by_producer;
 }
 

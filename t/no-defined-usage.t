@@ -13,7 +13,7 @@ my $app = My::DemoNoUsage->new();
 ok( $app->run() );
 
 #my $output_printed = ?
-#FIXME:need to somehow capture the output printed to STDOUT into $output_printed)
+#FIXME-TODO:need to capture the output printed to STDOUT into $output_printed)
 #is( $output_printed, $app->get_default_usage(), 'default usage message was printed' );
 
 __END__
