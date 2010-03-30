@@ -1,5 +1,5 @@
 package My::PerlFunctions;
-use base qw( CLI::Framework::Application );
+use base qw( CLI::Framework );
 
 use strict;
 use warnings;

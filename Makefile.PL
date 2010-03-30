@@ -4,8 +4,8 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
     NAME                => 'CLI::Framework',
-    AUTHOR              => 'Karl Erisman <karl.erisman@icainformatics.org>',
-    VERSION_FROM        => 'lib/CLI/Framework/Application.pm',
+    AUTHOR              => 'Karl Erisman <kerisman@cpan.org>',
+    VERSION_FROM        => 'lib/CLI/Framework.pm',
     ABSTRACT            => 'Build standardized, flexible, testable command-line applications',
     ($ExtUtils::MakeMaker::VERSION >= 6.3002
       ? ('LICENSE'=> 'perl')
@@ -18,6 +18,7 @@ WriteMakefile(
         'Getopt::Long::Descriptive'     => 0,
         'Class::Inspector'              => 0,
         'Term::ReadLine'                => 0,
+        'Text::ParseWords'              => 0,
         'Exception::Class'              => 0,
         'Exception::Class::TryCatch'    => 0,
     },

@@ -4,7 +4,7 @@ use strict;
 use warnings;
 #use warnings::register;
 
-our $VERSION = 0.03;
+our $VERSION = 0.04_01;
 
 use Carp;
 use Getopt::Long::Descriptive;
@@ -12,6 +12,23 @@ use Exception::Class::TryCatch;
 use Class::Inspector;
 
 use CLI::Framework::Exceptions qw( :all );
+
+#FIXME-TODO-CLASS_GENERATION:
+#our %CLASSES; # remember which classes have been auto-generated
+#
+#sub import {
+#    my ($class, %import_args) = @_;
+#
+#    # If caller has supplied import args, CLIF's "inline form" is being used;
+#    # we need to generate command classes dynamically...
+#    while( my ($cmd_pkg, $cmd_def) = each %import_args ) {
+#
+##FIXME-TODO-CLASS_GENERATION: Create the new classes named in $cmd_pkg, injecting the subs indicated
+## (whether explicitly or implicitly) by the contents of $cmd_def...
+#
+##        $cmd_obj = __PACKAGE__->new();
+#    }
+#}
 
 ###############################
 #
@@ -175,7 +192,7 @@ sub dispatch {
     # --- VALIDATE COMMAND OPTIONS AND ARGS ---
     eval { $cmd->validate($cmd_opts, @args) };
     if( catch my $e ) { # (command failed validation)
-        throw_cmd_validation_exception( error => $e->error );
+        throw_cmd_validation_exception( error => $e );
     }
     # Check if a subcommand is being requested...
     my $first_arg = shift @args; # consume potential subcommand name from input
@@ -190,7 +207,7 @@ sub dispatch {
         };
         if( catch my $e ) { # (subcommand failed options parsing)
             $e->isa( 'CLI::Framework::Exception' ) && do{ $e->rethrow };
-            throw_cmd_opts_parse_exception( error => $e->error );
+            throw_cmd_opts_parse_exception( error => $e );
         }
         $subcommand->set_default_usage( $subcmd_usage->text() );
 
@@ -296,7 +313,35 @@ CLI::Framework::Command - CLIF Command superclass
 
 =head1 SYNOPSIS
 
-See L<CLI::Framework::Tutorial> for examples.
+    # The code below shows a few of the methods your command classes are likely
+    # to override...
+
+    package My::Journal::Command::Search;
+    use base qw( CLI::Framework::Command );
+
+    sub usage_text { q{
+        search [--titles-only] <search regex>: search a journal
+    } }
+
+    sub option_spec { (
+        [ 'titles-only' => 'search only journal titles' ],
+    ) }
+
+    sub validate {
+        my $self, $opts, @args) = @_;
+        die "exactly one argument required (search regex)" unless @args == 1;
+    }
+
+    sub run {
+        my ($self, $opts, @args) = @_;
+
+        my $db = $self->cache->get( 'db' )
+
+        # perform search against $db...
+        # $search_results = ...
+
+        return $search_results;
+    }
 
 =head1 DESCRIPTION
 
@@ -358,9 +403,9 @@ in an attempt to find subcommands of S).
 
 =item 2
 
-Attempt to find and register preloaded subcommands defined B<inline>.  Only
-preloaded subcommands are considered for registration (i.e. package files are
-not considered in this step).  For every subcommand S, any preloaded
+Attempt to find and register pre-compiled subcommands defined B<inline>.  Only
+pre-compiled subcommands are considered for registration (i.e. package files are
+not considered in this step).  For every subcommand S, any pre-compiled
 subcommands that inherit B<directly> from S are found and step 2 repeats for
 those classes.
 
@@ -372,11 +417,11 @@ Note the following rules about command class definition:
 
 =item *
 
-If a (sub)command class is defined inline, its subcommand classes must be defined inline as well.
+If a command class is defined inline, its subcommand classes must be defined inline as well.
 
 =item *
 
-If a (sub)command class is file-based, each of its subcommand classes can be either file-based or inline.  Furthermore, it is not necessary for all of these subcommand classes to be defined in the same way -- a mixture of file-based and inline styles can be used for the subcommands of a given command.
+If a command class is file-based, each of its subcommand classes can be either file-based or inline.  Furthermore, it is not necessary for all of these subcommand classes to be defined in the same way -- a mixture of file-based and inline styles can be used for the subcommands of a given command.
 
 =back
 
@@ -409,7 +454,7 @@ use this simple cache object.
 =head2 get_default_usage() / set_default_usage( $default_usage_text )
 
 Get or set the default usage message for the command.  This message is used
-by L<usage|/usage( $command_name, @subcommand_chain )>.
+by L<usage|/usage( $subcommand_name, @subcommand_chain )>.
 
 B<Note>: C<get_default_usage()> merely retrieves the usage data that has already
 been set.  CLIF only sets the default usage message for a command when
@@ -426,6 +471,8 @@ given and you have not otherwise set the default usage message).
     print $cmd->usage();
 
     # Subcommand usage (to any level of depth)...
+    $subcommand_name = 'list';
+    @subcommand_chain = qw( completed );
     print $cmd->usage( $subcommand_name, @subcommand_chain );
 
 Attempts to find and return a usage message for a command or subcommand.
@@ -442,9 +489,9 @@ Logically, here is how the usage message is produced:
 
 If registered subcommand(s) are given, attempt to get usage message from a
 subcommand (B<Note> that a sequence of subcommands could be given, e.g.
-C<< $cmd->usage('task', 'list' 'completed') >>, which would result in the usage
-message for final subcommand, C<'completed'>).  If no usage message is defined
-for the subcommand, the usage message for the command is used instead.
+C<< $cmd->usage('list' 'completed') >>, which would result in the usage
+message for the final subcommand, C<'completed'>).  If no usage message is
+defined for the subcommand, the usage message for the command is used instead.
 
 =item *
 
@@ -453,8 +500,9 @@ used as the usage message.
 
 =item *
 
-Finally, if no usage message has been found, the default usage message
-produced by L<get_default_usage|/get_default_usage()> is returned.
+Finally, if no usage message has been found, the default usage message produced
+by L<get_default_usage|CLI::Framework::Application/get_default_usage() / set_default_usage( $default_usage )>
+is returned.
 
 =back
 
@@ -462,24 +510,28 @@ produced by L<get_default_usage|/get_default_usage()> is returned.
 
 For the given command request, C<dispatch> performs any applicable validation
 and initialization with respect to supplied options C<$cmd_opts> and arguments
-C<@args>.
+C<@args>, then runs the command.
 
 C<@args> may indicate the request for a subcommand:
 
     { <subcmd> [subcmd-opts] {...} } [subcmd-args]
 
-If a subcommand registered under the indicated command is requested,
-the subcommand is initialized and C<dispatch()>ed with its options
-C<[subcmd-opts]> and arguments.  Otherwise, the command itself is C<run()>.
+...as in the following command (where "usage" is the <subcmd>):
 
-This means that a request for a subcommand will result in the C<run()>
-method of only the deepest-nested subcommand (because C<dispatch()> will keep
+    $ gen-report --html stats --role=admin usage --time='2d' '/tmp/stats.html'
+
+If a subcommand registered under the indicated command is requested,
+the subcommand is initialized and dispatched with its options
+C<[subcmd-opts]> and arguments.  Otherwise, the command itself is run.
+
+This means that a request for a subcommand will result in the C<run>
+method of only the deepest-nested subcommand (because C<dispatch> will keep
 forwarding to successive subcommands until the args no longer indicate that a
 subcommand is requested).  Furthermore, the only command that can receive args
 is the final subcommand in the chain (but all commands in the chain can receive
 options).  However, B<Note> that each command in the chain can affect the
 execution process through its
-L<notify_of_subcommand_dispatch|notify_of_subcommand_dispatch( $subcommand, $cmd_opts, @args )>
+L<notify_of_subcommand_dispatch|/notify_of_subcommand_dispatch( $subcommand, $cmd_opts, @args )>
 method.
 
 =head1 COMMAND REGISTRATION
@@ -497,7 +549,7 @@ Return a list of the currently-registered subcommands.
 Given the name of a registered subcommand, return a reference to the
 subcommand object.  If the subcommand is not registered, returns undef.
 
-=head2 register_subcommand()
+=head2 register_subcommand( $subcmd_obj )
 
     $cmd->register_subcommand( $subcmd_obj );
 
@@ -522,15 +574,15 @@ C<name()> takes no arguments and returns the name of the command.  This method u
 
 Just as CLIF Applications have hooks that subclasses can use, CLIF Commands are
 able to influence the command dispatch process via several hooks.  Except
-where noted, all hooks are optional -- subclasses may choose not to override
-them.
+where noted, all hooks are optional -- subclasses may choose whether or not to
+override them.
 
 =head2 option_spec()
 
-This method should return an option specification as expected by the
-L<Getopt::Long::Descriptive> function
-L<describe_options|Getopt::Long::Descriptive/describe_options>.  The option
-specification is a list of ARRAY refs that defines recognized options, types,
+This method should return an option specification as expected by
+L<Getopt::Long::Descriptive> (see
+L<Getopt::Long::Descriptive|Getopt::Long::Descriptive/opt_spec>).  The option
+specification is a list of arrayrefs that defines recognized options, types,
 multiplicities, etc. and specifies textual strings that are used as
 descriptions of each option:
 
@@ -582,8 +634,8 @@ If a request for a subcommand is received, the master command itself does not
 C<run()>.  Instead, its C<notify_of_subcommand_dispatch()> method is called.
 This gives the master command a chance to act before the subcommand is run.
 
-For example (please pardon this contrived example), suppose your application,
-'queue', has a command hierarchy with multiple commands:
+For example, suppose some (admittedly contrived) application, 'queue', has a
+command hierarchy with multiple commands:
 
     enqueue
     dequeue
@@ -594,7 +646,7 @@ For example (please pardon this contrived example), suppose your application,
         behavior
     ...
 
-In this case, C<queue property constraint maxlen> might set the max length
+In this case, C<$ queue property constraint maxlen> might set the max length
 property for a queue.  If the command hierarchy was built this way, C<maxlen>
 would be the only command to C<run> in response to that request.  If
 C<constraint>, the master command of C<maxlen>, needs to hook into this
@@ -612,6 +664,12 @@ C<@args> is the argument list for the subcommand.
 
 =head2 usage_text()
 
+    sub usage_text {
+        q{
+        dequeue: remove item from queue
+        }
+    }
+
 If implemented, this method should simply return a string containing usage
 information for the command.  It is used automatically to provide
 context-specific help.
@@ -620,6 +678,8 @@ Implementing this method is optional.  See
 L<usage|CLI::Framework::Application/usage( $command_name, @subcommand_chain )>
 for details on how usage information is generated within the context of a CLIF
 application.
+
+Users are encouraged to override this method.
 
 =head2 run( $cmd_opts, @args )
 
@@ -632,11 +692,11 @@ their user-provided values as hash values.
 C<@args> is a list of the command arguments.
 
 The default implementation of this method simply calls
-L<usage|usage( $subcommand_name, @subcommand_chain )> to show help information
+L<usage|/usage( $subcommand_name, @subcommand_chain )> to show help information
 for the command.  Therefore, subclasses will usually override C<run()>
 (Occasionally, it is useful to have a command that does little or nothing on
-its own but has subcommands that define the real behavior.  In such relatively
-uncommon cases, it may not be necessary to override C<run()>).
+its own but has subcommands that define the real behavior.  In such occasional
+cases, it may not be necessary to override C<run()>).
 
 If an error occurs during the execution of a command via its C<run()> method,
 the C<run()> method code should throw an exception.  The exception will be
@@ -654,7 +714,7 @@ C<undef> or empty string.
 
 =item C<< Error: failed to instantiate command package <command pkg> via new() >>
 
-L<manufacture|manufacture( $command_package )> was asked to manufacture an object of class
+L<manufacture|/manufacture( $command_package )> was asked to manufacture an object of class
 <command pkg>, but failed while trying to invoke its constructor.
 
 =item C<< Error: failed to instantiate subcommand '<class>' via method new() >>
@@ -664,7 +724,7 @@ C<require()d>) was unsuccessful.
 
 =item C<< cannot opendir <dir> >>
 
-While trying to L<manufacture|manufacture( $command_package )> subcommands in a directory tree,
+While trying to L<manufacture|/manufacture( $command_package )> subcommands in a directory tree,
 calling C<opendir()> on the subdirectory with the name of the parent command
 failed.
 
@@ -688,9 +748,11 @@ L<CLI::Framework::Exceptions>
 
 =head1 SEE ALSO
 
-L<CLI::Framework::Tutorial>
+L<CLI::Framework>
 
 L<CLI::Framework::Application>
+
+L<CLI::Framework::Tutorial>
 
 =head1 LICENSE AND COPYRIGHT
 

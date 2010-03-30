@@ -3,7 +3,7 @@ package CLI::Framework::Exceptions;
 use strict;
 use warnings;
 
-our $VERSION = 0.01;
+our $VERSION = 0.02_01;
 
 # Make it possible to use aliases directly in client code...
 use Exporter qw( import );
@@ -13,7 +13,7 @@ our @EXPORT_OK = qw(
     throw_app_opts_parse_exception
     throw_app_opts_validation_exception
     throw_app_init_exception
-    throw_app_args_exception
+    throw_invalid_cmd_exception
     throw_cmd_registration_exception
     throw_type_exception
     throw_cmd_opts_parse_exception
@@ -49,10 +49,10 @@ use Exception::Class (
         description => 'Failed application initialization',
         alias       => 'throw_app_init_exception'
     },
-    'CLI::Framework::Exception::AppArgumentsException' => {
+    'CLI::Framework::Exception::InvalidCmdException' => {
         isa         => 'CLI::Framework::Exception',
-        description => 'Invalid application arguments',
-        alias       => 'throw_app_args_exception'
+        description => 'Invalid command',
+        alias       => 'throw_invalid_cmd_exception'
     },
     'CLI::Framework::Exception::CmdRegistrationException' => {
         isa         => 'CLI::Framework::Exception',
@@ -168,17 +168,17 @@ C<throw_app_init_exception>
 
 =back
 
-=head2 CLI::Framework::Exception::AppArgumentsException
+=head2 CLI::Framework::Exception::InvalidCmdException
 
 =over
 
 =item description
 
-C<Invalid application arguments>
+C<Invalid command>
 
 =item alias
 
-throw_app_args_exception
+throw_invalid_cmd_exception
 
 =back
 

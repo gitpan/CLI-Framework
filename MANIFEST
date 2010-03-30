@@ -1,5 +1,7 @@
 MANIFEST
+README
 Changes
+Makefile.PL
 lib/CLI/Framework/Command/Alias.pm
 lib/CLI/Framework/Command/Meta.pm
 lib/CLI/Framework/Command/Menu.pm
@@ -12,6 +14,7 @@ lib/CLI/Framework/Exceptions.pm
 lib/CLI/Framework/Tutorial.pod
 lib/CLI/Framework/Command.pm
 lib/CLI/Framework/Application.pm
+lib/CLI/Framework.pm
 t/00-load.t
 t/bin/perlfunc
 t/bin/myjournal
@@ -49,6 +52,5 @@ t/define-classes-inline.t
 t/interactivity.t
 examples/queue
 examples/demo-simple.pl
-Makefile.PL
-README
+docs/images/cli-framework.jpg
 META.yml                                 Module meta-data (added by MakeMaker)

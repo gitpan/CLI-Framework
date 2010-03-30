@@ -43,7 +43,6 @@ sub menu_txt {
     return "\n".$txt;
 }
 
-
 sub line_count {
     my ($self) = @_;
 
@@ -67,7 +66,7 @@ including the commands that are available to the running application
 
 =head1 SEE ALSO
 
-L<run_interactive|CLI::Framework::Application/run_interactive>
+L<run_interactive|CLI::Framework::Application/run_interactive( [%param] )>
 
 L<CLI::Framework::Command::Console>
 

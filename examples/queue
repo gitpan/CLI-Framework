@@ -36,7 +36,7 @@ My::Queue->run(); # Launch command
 
 # ---- APPLICATION CLASS ----
 package My::Queue;
-use base qw( CLI::Framework::Application );
+use base qw( CLI::Framework );
 
 use strict;
 use warnings;

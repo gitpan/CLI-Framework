@@ -1,5 +1,5 @@
 package My::DemoNoUsage;
-use base qw( CLI::Framework::Application );
+use base qw( CLI::Framework );
 
 use lib 'lib';
 use lib 't/lib';

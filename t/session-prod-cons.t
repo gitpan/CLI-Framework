@@ -36,7 +36,7 @@ close $devnull;
 
 # application WRITES TO the cache
 package Test::Of::Session::Persistence;
-use base qw( CLI::Framework::Application );
+use base qw( CLI::Framework );
 
 use strict;
 use warnings;

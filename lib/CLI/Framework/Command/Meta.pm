@@ -31,10 +31,19 @@ This class is a subclass of CLI::Framework::Command.  It defines
 "metacommands", commands that are application-aware (and thus, implicitly
 aware of all other commands registered within the application).  Metacommands
 have methods that set and retrieve a reference to the application within which
-they are running.  This class exists as a separate class because, with few
-exceptions, commands should be independent of the application they are
-associated with and should not affect that application.  Metacommands represent
-the exception to that rule.
+they are running.
+
+This class exists as a separate class because, with few exceptions, commands
+should be independent of the application they are associated with and should not
+affect that application.  Metacommands represent the exception to that rule.
+In the exceptional cases, your command will inherit from this one instead of
+C<CLI::Framework::Command>.
+
+=head1 WHEN TO BUILD METACOMMANDS VS REGULAR COMMANDS
+
+See
+L<tutorial advice|CLI::Framework::Tutorial/How can I create an application-aware command?>
+on this topic.
 
 =head1 METHODS
 
@@ -47,6 +56,8 @@ Retrieve or set the application object associated with a metacommand object.
     $command->set_app( $app );
 
 =head1 SEE ALSO
+
+L<CLI::Framework::Command>
 
 L<CLI::Framework::Application>
 

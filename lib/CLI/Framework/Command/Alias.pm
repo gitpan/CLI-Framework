@@ -111,4 +111,10 @@ __END__
 CLI::Framework::Command::Alias - CLIF built-in command to display the command
 aliases that are in effect for the running application and its commands
 
+=head1 SEE ALSO
+
+L<command_alias|CLI::Framework::Application/command_alias()>
+
+L<CLI::Framework::Command>
+
 =cut

@@ -6,13 +6,17 @@ use lib 't/lib';
 
 use File::Spec;
 
-use Test::More qw( no_plan );
+use Test::More;
+# These tests require DBI and DBD::SQLite (My::Journal dependencies)...
+my $prereqs_installed = eval 'use DBI; use DBD::SQLite';
+if( $@ ) { plan skip_all => 'DBI and DBD::SQLite are required for tests that use demo app My::Journal' }
+else { plan 'no_plan' }
 use_ok( 'My::Journal' );
 
 #~~~~~~
 # Send STDOUT, STDERR to null device...
 close STDOUT;
-open ( STDOUT, '>', File::Spec->devnull() );
+open( STDOUT, '>', File::Spec->devnull() );
 close STDERR;
 open( STDERR, '>', File::Spec->devnull() );
 #~~~~~~

@@ -234,4 +234,10 @@ __END__
 
 My::Journal::Model - Example model class for My::Journal demo app.
 
+=head1 DEPENDENCIES
+
+DBI
+
+DBD::SQLite
+
 =cut

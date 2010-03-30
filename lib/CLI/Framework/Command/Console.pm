@@ -10,7 +10,7 @@ our $VERSION = 0.01;
 
 sub usage_text { 
     q{
-    console: invoke interactive command console'
+    console: invoke interactive command console
     }
 }
 
@@ -38,7 +38,7 @@ interactive mode
 
 =head1 SEE ALSO
 
-L<run_interactive|CLI::Framework::Application/run_interactive>
+L<run_interactive|CLI::Framework::Application/run_interactive( [%param] )>
 
 L<CLI::Framework::Command::Menu>
 

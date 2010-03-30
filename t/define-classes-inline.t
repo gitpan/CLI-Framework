@@ -24,7 +24,7 @@ ok( My::App->run() );
 ###################################
 
 package My::App;
-use base qw( CLI::Framework::Application );
+use base qw( CLI::Framework );
 
 use strict;
 use warnings;

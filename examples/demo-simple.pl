@@ -14,7 +14,7 @@ $app->run();
 
 # ---- APPLICATION ----
 package Converted::Script;
-use base qw( CLI::Framework::Application );
+use base qw( CLI::Framework );
 
 use strict;
 use warnings;
@@ -49,7 +49,7 @@ sub run {
     my ($self, $opts, @args) = @_;
 
     return 'running '.__PACKAGE__.
-    '... (<useful things happen here -- use your imagination>)';
+    "... (<useful things happen here -- use your imagination>)\n";
 }
 
 __END__

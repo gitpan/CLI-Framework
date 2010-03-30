@@ -56,3 +56,29 @@ Revision history for CLI::Framework
                     (a hash mapping command names to package names)
 
         * CLI::Framework::Application::run() now accepts param 'initialize'
+
+0.04    2010-xx-xx
+FIXME:developer release 0.04_01
+
+        * Fixed inconsistency in exception handling (http://cpanforum.com/posts/12419)
+
+        * Fixed failing tests (some test scripts depended on DBI and DBD::SQLite,
+          which are not (and should not be) dependencies of the distribution)
+
+        * Added CLI::Framework package to satisfy CPAN's requirements for
+          finding the ABSTRACT for a distribution
+            + ***NOTE***: CLIF Application classes can now inherit from
+              CLI::Framework instead of CLI::Framework::Application (both work
+              equivalently)
+
+        * documentation updates
+            + link corrections, better explanation of some concepts
+            + moved general framework documentation from
+              CLI::Framework::Application POD to CLI::Framework POD
+            + added class diagram
+
+        ***
+        *** ATTENTION: one (minor) interface change:
+        ***
+        * in CLI::Framework::Exceptions, changed throw_app_args_exception() to
+          throw_invalid_cmd_exception()
