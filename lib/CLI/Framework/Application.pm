@@ -3,7 +3,7 @@ package CLI::Framework::Application;
 use strict;
 use warnings;
 
-our $VERSION = '0.04_02';
+our $VERSION = '0.04';
 
 use Getopt::Long::Descriptive;
 use Exception::Class::TryCatch;

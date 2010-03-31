@@ -4,7 +4,7 @@ use strict;
 use warnings;
 #use warnings::register;
 
-our $VERSION = 0.04_02;
+our $VERSION = 0.04;
 
 use Carp;
 use Getopt::Long::Descriptive;

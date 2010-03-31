@@ -412,7 +412,7 @@ F<t/lib/My/Journal/Model.pm>.
 
 In your Application class, define C<init()> to load your configuration file
 and save the resulting configuration object in the cache using the
-L<cache|CLI::Framework::Application/cache>, where the object will be
+L<cache|CLI::Framework::Application/cache()>, where the object will be
 available to your application and command objects.
 
 =head2 How can I use templates for more flexible output?
@@ -479,7 +479,8 @@ This will cause the interactive console to be launched during initialization.
 This technique could be used to launch the built-in console command or a
 custom interactive command.
 
-For more details, see (L<http://cpanforum.com/posts/12426>).
+This was considered in greater detail on the discussion forum:
+L<http://cpanforum.com/posts/12426>.
 
 =head1 TROUBLESHOOTING
 

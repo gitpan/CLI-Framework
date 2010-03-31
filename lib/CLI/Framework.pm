@@ -4,7 +4,7 @@ use base qw( CLI::Framework::Application );
 use strict;
 use warnings;
 
-our $VERSION = '0.04_02';
+our $VERSION = '0.04';
 
 #-------
 1;
@@ -374,7 +374,7 @@ subclass of this one.
 
 =back
 
-=head1 CLIF CLASS DIAGRAM
+=head1 CLIF ARCHITECTURE AT A GLANCE
 
 The class diagram below shows the relationships of the major classes of
 CLI Framework, including some of their methods.  This is not intended to be a
@@ -382,7 +382,7 @@ comprehensive diagram, only an aid to understanding CLIF at a glance.
 
 =begin html
 
-<p><center><img src="http://cpansearch.perl.org/src/KERISMAN/CLI-Framework-0.03/docs/images/cli-framework.jpg" alt="cli-framework class diagram" /></center></p>
+<p><center><img src="http://cpansearch.perl.org/src/KERISMAN/CLI-Framework-0.04/docs/images/cli-framework.jpg" alt="class diagram from docs/images dir" /></center></p>
 
 =end html
 

@@ -57,8 +57,7 @@ Revision history for CLI::Framework
 
         * CLI::Framework::Application::run() now accepts param 'initialize'
 
-0.04    2010-xx-xx
-FIXME:developer release 0.04_01
+0.04    2010-03-31
 
         * Fixed inconsistency in exception handling (http://cpanforum.com/posts/12419)
 

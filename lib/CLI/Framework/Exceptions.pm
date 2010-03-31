@@ -3,7 +3,7 @@ package CLI::Framework::Exceptions;
 use strict;
 use warnings;
 
-our $VERSION = 0.02_02;
+our $VERSION = 0.02;
 
 # Make it possible to use aliases directly in client code...
 use Exporter qw( import );
