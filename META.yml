@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               CLI-Framework
-version:            0.04_01
+version:            0.04_02
 abstract:           Build standardized, flexible, testable command-line applications
 author:
     - Karl Erisman <kerisman@cpan.org>

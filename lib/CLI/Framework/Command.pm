@@ -4,7 +4,7 @@ use strict;
 use warnings;
 #use warnings::register;
 
-our $VERSION = 0.04_01;
+our $VERSION = 0.04_02;
 
 use Carp;
 use Getopt::Long::Descriptive;
@@ -712,7 +712,7 @@ C<undef> or empty string.
 
 =over
 
-=item C<< Error: failed to instantiate command package <command pkg> via new() >>
+=item C<< Error: failed to instantiate command package '<command pkg>' via new() >>
 
 L<manufacture|/manufacture( $command_package )> was asked to manufacture an object of class
 <command pkg>, but failed while trying to invoke its constructor.
@@ -756,8 +756,7 @@ L<CLI::Framework::Tutorial>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (c) 2009 Karl Erisman (karl.erisman@icainformatics.com), Informatics
-Corporation of America. All rights reserved.
+Copyright (c) 2009 Karl Erisman (kerisman@cpan.org). All rights reserved.
 
 This is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself. See perlartistic.

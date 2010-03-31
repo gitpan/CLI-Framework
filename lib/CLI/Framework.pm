@@ -4,7 +4,7 @@ use base qw( CLI::Framework::Application );
 use strict;
 use warnings;
 
-our $VERSION = '0.04_01';
+our $VERSION = '0.04_02';
 
 #-------
 1;
@@ -51,7 +51,7 @@ references.
 There are a few other distributions on CPAN intended to simplify building
 modular command line applications.  I have not found any that meet my
 requirements, which are documented in
-L<DESIGN GOALS AND FEATURES|\DESIGN GOALS AND FEATURES>.
+L<DESIGN GOALS AND FEATURES|/DESIGN GOALS AND FEATURES>.
 
 =head1 DESIGN GOALS AND FEATURES
 
@@ -251,9 +251,10 @@ stats might be available for users with other roles.  The usage report might
 need to accept custom time frames.
 
 CLIF allows you to choose whether various parts of your data should be supplied
-as options or as arguments -- these are interface decisions.  It also makes it
-easy to validate command requests and to provide usage information so users know
-what to change if a command request fails validation.
+as options or as arguments -- these interface decisions are left to your
+discretion.  CLIF also makes it easy to validate command requests and to provide
+usage information so users know what to change if a command request fails
+validation.
 
 In general, if a command request is not well-formed, it is replaced with the
 default command and any arguments present are ignored.  The default command
@@ -371,6 +372,8 @@ interactive mode.  This built-in may be replaced by a user-defined "menu"
 command, but any command class to be used for the "menu" command MUST be a
 subclass of this one.
 
+=back
+
 =head1 CLIF CLASS DIAGRAM
 
 The class diagram below shows the relationships of the major classes of
@@ -383,8 +386,6 @@ comprehensive diagram, only an aid to understanding CLIF at a glance.
 
 =end html
 
-=back
-
 =head1 SEE ALSO
 
 L<CLI::Framework::Application>
@@ -395,7 +396,7 @@ L<CLI::Framework::Tutorial>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (c) 2009 Karl Erisman (kerisman@cpan.com). All rights reserved.
+Copyright (c) 2009 Karl Erisman (kerisman@cpan.org). All rights reserved.
 
 This is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself. See perlartistic.

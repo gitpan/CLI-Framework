@@ -122,8 +122,8 @@ L<Getopt::Long::Descriptive|Getopt::Long::Descriptive/opt_spec>):
 ...and that's all it takes to convert a simple script to a CLIF app.  This
 contrived example demonstrates the mechanics, but let me point out a few
 advantages (see
-L<DESIGN GOALS AND FEATURES|CLI::Framework/DESIGN GOALS AND FEATURES>
-in the L<CLI::Framework> documentation for the long list):
+L<DESIGN GOALS AND FEATURES|CLI::Framework/DESIGN GOALS AND FEATURES> for the
+long list):
 
 =over
 
@@ -162,13 +162,11 @@ simply like a pattern to follow, it may still be worth considering.
 
 =head1 CONCEPTS AND DEFINITIONS
 
-See L<CONCEPTS AND DEFINITIONS|CLI::Framework/CONCEPTS AND DEFINITIONS>
-in the L<CLI::Framework> documentation.
+See L<CONCEPTS AND DEFINITIONS|CLI::Framework/CONCEPTS AND DEFINITIONS>.
 
 =head1 UNDERSTANDING THE APPLICATION RUN SEQUENCE
 
-See L<APPLICATION RUN SEQUENCE|CLI::Framework/APPLICATION RUN SEQUENCE>
-in the L<CLI::Framework> documentation.
+See L<APPLICATION RUN SEQUENCE|CLI::Framework/APPLICATION RUN SEQUENCE>.
 
 B<Understanding this is important to building more complex apps>.  You need,
 at the least, to understand how CLIF differentiates between options and
@@ -414,7 +412,7 @@ F<t/lib/My/Journal/Model.pm>.
 
 In your Application class, define C<init()> to load your configuration file
 and save the resulting configuration object in the cache using the
-L<cache()|CLI::Framework::Application|/cache>, where the object will be
+L<cache|CLI::Framework::Application/cache>, where the object will be
 available to your application and command objects.
 
 =head2 How can I use templates for more flexible output?
@@ -453,7 +451,7 @@ L<Term::Prompt>.  Then all of your commands can inherit from C<Your::Command>
 and will all have access to the functions.
 
 You may also want to override
-L<read_cmd()|CLI::Framework::Application|/read_cmd()>.
+L<read_cmd|CLI::Framework::Application/read_cmd()>.
 
 =head2 How can I create an app without a "help" command?
 
@@ -463,7 +461,7 @@ command with an empty C<run> method.
 
 =head2 How can I dynamically determine whether or not to run interactively based on command-line options?
 
-You may wish to provide an application option (--interactive) to start
+You may wish to provide an application option (C<--interactive>) to start
 interactive mode.  One way to do this is to use your application's C<init>
 method to determine whether or not to invoke the built-in console command.
 For example:
@@ -513,14 +511,13 @@ for F<Class.pm>.
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (c) 2009 Karl Erisman (karl.erisman@icainformatics.com), Informatics
-Corporation of America. All rights reserved.
+Copyright (c) 2009 Karl Erisman (kerisman@cpan.org). All rights reserved.
 
 This is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself. See perlartistic.
 
 =head1 AUTHOR
 
-Karl Erisman (karl.erisman@icainformatics.com)
+Karl Erisman (kerisman@cpan.org)
 
 =cut

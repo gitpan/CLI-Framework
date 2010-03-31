@@ -3,7 +3,7 @@ package CLI::Framework::Exceptions;
 use strict;
 use warnings;
 
-our $VERSION = 0.02_01;
+our $VERSION = 0.02_02;
 
 # Make it possible to use aliases directly in client code...
 use Exporter qw( import );
@@ -178,7 +178,7 @@ C<Invalid command>
 
 =item alias
 
-throw_invalid_cmd_exception
+C<throw_invalid_cmd_exception>
 
 =back
 
@@ -254,7 +254,7 @@ C<throw_cmd_run_exception>
 
 =head1 EXPORTS
 
-All C<alias>es are available for use by client code (but none are exported by
+All aliases are available for use by client code (but none are exported by
 default).  The ':all' tag causes all of the C<alias>es to be exported.
 
 =head1 SEE ALSO

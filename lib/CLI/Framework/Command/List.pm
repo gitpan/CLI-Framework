@@ -42,6 +42,8 @@ commands available to the running application
 
 =head1 SEE ALSO
 
+L<command_map|CLI::Framework::Application/command_map()>
+
 L<CLI::Framework::Command>
 
 =cut

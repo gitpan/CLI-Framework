@@ -52,6 +52,10 @@ command-specific usage messages
 
 =head1 SEE ALSO
 
+L<Command usage()|CLI::Framework::Command/usage( $subcommand_name, @subcommand_chain )>
+
+L<Application usage()|CLI::Framework::Application/usage( $command_name, @subcommand_chain )>
+
 L<CLI::Framework::Command>
 
 =cut

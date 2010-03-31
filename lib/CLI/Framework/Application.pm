@@ -3,7 +3,7 @@ package CLI::Framework::Application;
 use strict;
 use warnings;
 
-our $VERSION = '0.04_01';
+our $VERSION = '0.04_02';
 
 use Getopt::Long::Descriptive;
 use Exception::Class::TryCatch;
@@ -674,7 +674,7 @@ __END__
 
 =head1 NAME
 
-CLI::Framework::Application - Build standardized, flexible, testable command-line applications
+CLI::Framework::Application - CLIF Application superclass
 
 =head1 SYNOPSIS
 
@@ -685,25 +685,25 @@ CLI::Framework::Application - Build standardized, flexible, testable command-lin
     use base qw( CLI::Framework );
 
     sub usage_text { q{
-    $0 [--verbose|v]
+        $0 [--verbose|v]
 
-    OPTIONS
-        --db [path]  : path to SQLite database file
-        -v --verbose : be verbose
-        -h --help    : show help
+        OPTIONS
+            --db [path]  : path to SQLite database file
+            -v --verbose : be verbose
+            -h --help    : show help
 
-    COMMANDS
-        help        - show application or command-specific help
-        menu        - print command menu
-        entry       - work with journal entries
-        publish     - publish a journal
-        console     - start a command console for the application
+        COMMANDS
+            help        - show application or command-specific help
+            menu        - print command menu
+            entry       - work with journal entries
+            publish     - publish a journal
+            console     - start a command console for the application
     } }
 
     sub option_spec {
         [ 'help|h'      => 'show help' ],
         [ 'verbose|v'   => 'be verbose' ],
-        [ 'db=s'        => 'path to SQLite database file for your journal' ],
+        [ 'db=s'        => 'path to SQLite database file' ],
     }
 
     sub command_map { {
@@ -738,7 +738,8 @@ the general framework documentation has been moved there).
 
 B<Note> that C<CLI::Framework> can now serve as the superclass for your
 applications (this is new in version 0.04).  However, as in earlier versions,
-C<CLI::Framework::Application> will work as the application base class.
+C<CLI::Framework::Application> will continue to work as the application base
+class.
 
 =head1 OBJECT CONSTRUCTION
 
@@ -1098,11 +1099,10 @@ C<$options_hash> is an options hash parsed from the command-line.
 This method should throw an exception if the options are invalid (throwing the
 exception using C<die()> is sufficient).
 
-B<Note> that L<Getopt::Long::Descriptive>, which is used internally for part of the
-options processing, will perform some validation of its own based on the
-L<option_spec|/option_spec()>.  However, the
-L<validate_options|/validate_options( $options_hash )>
-hook allows for additional flexibility in validating application options.
+B<Note> that L<Getopt::Long::Descriptive>, which is used internally for part of
+the options processing, will perform some validation of its own based on the
+L<option_spec|/option_spec()>.  However, the C<validate_options> hook allows for
+additional flexibility in validating application options.
 
 =head2 command_map()
 
@@ -1286,7 +1286,7 @@ Better automatic usage message generation
 =item *
 
 An optional inline automatic class generation interface similar to that of
-L<Class::Exception> that will make the simple "inline" form of usage even
+L<Exception::Class> that will make the simple "inline" form of usage even
 more compact
 
 =back
@@ -1301,7 +1301,7 @@ L<CLI::Framework::Tutorial>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (c) 2009 Karl Erisman (kerisman@cpan.com). All rights reserved.
+Copyright (c) 2009 Karl Erisman (kerisman@cpan.org). All rights reserved.
 
 This is free software; you can redistribute it and/or modify it under the same
 terms as Perl itself. See perlartistic.
