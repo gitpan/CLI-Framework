@@ -38,17 +38,15 @@ sub option_spec {
 }
 
 sub command_map {
-    {
-        entry   => 'My::Journal::Command::Entry',
-        publish => 'My::Journal::Command::Publish',
-        menu    => 'My::Journal::Command::Menu',
-        help    => 'CLI::Framework::Command::Help',
-        list    => 'CLI::Framework::Command::List',
-        tree    => 'CLI::Framework::Command::Tree',
-        alias   => 'CLI::Framework::Command::Alias',
-        'dump'  => 'CLI::Framework::Command::Dump',
-        console => 'CLI::Framework::Command::Console',
-    }
+    entry   => 'My::Journal::Command::Entry',
+    publish => 'My::Journal::Command::Publish',
+    menu    => 'My::Journal::Command::Menu',
+    help    => 'CLI::Framework::Command::Help',
+    list    => 'CLI::Framework::Command::List',
+    tree    => 'CLI::Framework::Command::Tree',
+    alias   => 'CLI::Framework::Command::Alias',
+    'dump'  => 'CLI::Framework::Command::Dump',
+    console => 'CLI::Framework::Command::Console',
 }
 
 sub command_alias {

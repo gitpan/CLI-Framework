@@ -29,11 +29,9 @@ sub usage_text {
 }
 
 sub command_map {
-    {
-        summary => 'My::PerlFunctions::Command::Summary',
-        console => 'CLI::Framework::Command::Console',
-        menu    => 'CLI::Framework::Command::Menu',
-    }
+    summary => 'My::PerlFunctions::Command::Summary',
+    console => 'CLI::Framework::Command::Console',
+    menu    => 'CLI::Framework::Command::Menu',
 }
 
 #-------

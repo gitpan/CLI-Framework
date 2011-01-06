@@ -37,10 +37,11 @@ sub menu_txt {
     }
     # Add numerical aliases corresponding to menu options to the original
     # command aliases defined by the application...
-    no strict 'refs'; no warnings;
-    *{ (ref $app).'::command_alias' } = sub { %new_aliases };
-
-    return "\n".$txt;
+    {
+        no strict 'refs'; no warnings;
+        *{ (ref $app).'::command_alias' } = sub { %new_aliases };
+        return "\n".$txt;
+    }
 }
 
 sub line_count {

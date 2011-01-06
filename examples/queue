@@ -89,23 +89,22 @@ sub validate_options {
 }
 
 sub command_map {
-    # In this *HASH ref*, the command names given as keys will be bound to the
-    # command classes given as values.
-    {
-        console     => 'CLI::Framework::Command::Console',
-        alias       => 'CLI::Framework::Command::Alias',
-        'cmd-list'  => 'CLI::Framework::Command::List',
-        enqueue     => 'My::Queue::Command::Enqueue',
-        dequeue     => 'My::Queue::Command::Dequeue',
-        print       => 'My::Queue::Command::Print',
-        property    => 'My::Queue::Command::Property',
-    }
+    # In this *list*, the command names given as keys will be bound to the
+    # command classes given as values.  This will be used by CLIF as a hash
+    # initializer and the command_map_hashref() method will be provided to
+    # return a hash created from this list for convenience.
+    console     => 'CLI::Framework::Command::Console',
+    alias       => 'CLI::Framework::Command::Alias',
+    'cmd-list'  => 'CLI::Framework::Command::List',
+    enqueue     => 'My::Queue::Command::Enqueue',
+    dequeue     => 'My::Queue::Command::Dequeue',
+    print       => 'My::Queue::Command::Print',
+    property    => 'My::Queue::Command::Property',
 }
 
 sub command_alias {
-    # In this *hash* (actually a list that will be used as a hash initializer),
-    # the keys are aliases to the command names given as values (the values
-    # should be found in command_map()).
+    # In this list, the keys are aliases to the command names given as values
+    # (the values should be found as "keys" in command_map()).
     sh  => 'console',
 
     e   => 'enqueue',

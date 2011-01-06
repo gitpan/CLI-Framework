@@ -16,10 +16,8 @@ sub option_spec {
 }
 
 sub command_map {
-    {
-        tree    => 'CLI::Framework::Command::Tree',
-        a       => 'My::DemoNoUsage::Command::A',
-    }
+    tree    => 'CLI::Framework::Command::Tree',
+    a       => 'My::DemoNoUsage::Command::A',
 }
 
 #-------

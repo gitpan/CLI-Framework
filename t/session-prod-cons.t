@@ -54,11 +54,9 @@ sub init {
 }
 
 sub command_map {
-    {
-        console             => 'CLI::Framework::Command::Console',
-        'session-producer'  => 'Producer',
-        'session-consumer'  => 'Consumer',
-    }
+    console             => 'CLI::Framework::Command::Console',
+    'session-producer'  => 'Producer',
+    'session-consumer'  => 'Consumer',
 }
 
 sub command_alias {

@@ -52,15 +52,13 @@ sub option_spec {
 }
 
 sub command_map {
-    {
-        console => 'CLI::Framework::Command::Console',
-        list    => 'CLI::Framework::Command::List',
-        menu    => 'CLI::Framework::Command::Menu',
-        'dump'  => 'CLI::Framework::Command::Dump',
-        tree    => 'CLI::Framework::Command::Tree',
-        x       => 'My::App::Command::X',
-#        x       => 'My::Command::Shared::X',
-    }
+    console => 'CLI::Framework::Command::Console',
+    list    => 'CLI::Framework::Command::List',
+    menu    => 'CLI::Framework::Command::Menu',
+    'dump'  => 'CLI::Framework::Command::Dump',
+    tree    => 'CLI::Framework::Command::Tree',
+    x       => 'My::App::Command::X',
+#    x       => 'My::Command::Shared::X',
 }
 
 sub command_alias {

@@ -95,9 +95,7 @@ that links command names with classes that implement the commands:
     use base qw( CLI::Framework );
 
     sub command_map {
-        {
-            'legacy-script' => 'Converted::Script::Command::LegacyScript',
-        }
+        'legacy-script' => 'Converted::Script::Command::LegacyScript',
     }
 
 The code that provides a friendly usage message (if the legacy script provided

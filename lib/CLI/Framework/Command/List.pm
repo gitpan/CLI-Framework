@@ -22,7 +22,7 @@ sub run {
     # If interactive, exclude commands that do not apply in interactive mode...
     my @command_set = $app->get_interactivity_mode()
         ? $app->get_interactive_commands()
-        : keys %{ $app->command_map() };
+        : keys %{ $app->command_map_hashref() };
 
     my $result = join(', ', map { lc $_ } @command_set ) . "\n";
     return $result;

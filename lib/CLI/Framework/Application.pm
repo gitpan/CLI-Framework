@@ -12,20 +12,26 @@ use CLI::Framework::Exceptions qw( :all );
 use CLI::Framework::Command;
 
 # Certain built-in commands are required:
-use constant REQUIRED_BUILTINS => qw(
+use constant REQUIRED_BUILTINS_PKGS => qw(
     CLI::Framework::Command::Help
 );
+use constant REQUIRED_BUILTINS_NAMES => qw(
+    help
+);
 # Certain built-in commands are required only in interactive mode:
-use constant REQUIRED_BUILTINS_INTERACTIVE => qw(
+use constant REQUIRED_BUILTINS_PKGS_INTERACTIVE => qw(
     CLI::Framework::Command::Menu
+);
+use constant REQUIRED_BUILTINS_NAMES_INTERACTIVE => qw(
+    menu
 );
 
 #FIXME-TODO-CLASS_GENERATION:
 #sub import {
 #    my ($class, $app_pkg, $app_def) = @_;
 #
-#    # If caller has supplied import args, CLIF's "inline form" is being used;
-#    # we need to generate the application class dynamically...
+#    # If caller has supplied import args, CLIF's "inline form" is being used.
+#    # The application class must be generated dynamically...
 #
 #}
 
@@ -62,27 +68,33 @@ sub _validate_hooks {
 
     my $class = ref $app;
 
-    # Ensure that command_map() returns a hashref...
-    my $h;
-    eval { $h = $app->command_map() };
+    # Ensure that command_map() succeeds...
+    eval { $app->command_map() };
     if( catch my $e ) {
-        throw_app_hook_exception(
-            error   => "method 'command_map' in class '$class' fails" );
+        throw_app_hook_exception( error =>
+            "method 'command_map' in class '$class' fails" );
     }
-    elsif( ref $h ne 'HASH' ) {
-        throw_app_hook_exception(
-            error   => "method 'command_map' in class '$class' should return a HASH ref" );
+    # Ensure that command_map() returns a "hash-worthy" list...
+    else {
+        eval { $app->_list_to_hashref( 'command_map' ) };
+        if( catch my $e ) {
+            $e->isa( 'CLI::Framework::Exception' ) && do{ $e->rethrow() };
+            throw_app_hook_exception( error => $e );
+        }
     }
-    # Ensure that command_alias() returns value appropriate for hash...
-    my @aliases;
-    eval { @aliases = $app->command_alias() };
+    # Ensure that command_alias() succeeds...
+    eval { $app->command_alias() };
     if( catch my $e ) {
         throw_app_hook_exception(
             error   => "method 'command_alias' in class '$class' fails" );
     }
-    elsif( @aliases % 2 != 0 ) {
-        throw_app_hook_exception(
-            error   => "method 'command_alias' in class '$class' should return a hash or even-sized list" );
+    # Ensure that commandf_alias() returns a "hash-worthy" list...
+    else {
+        eval { $app->_list_to_hashref( 'command_alias' ) };
+        if( catch my $e ) {
+            $e->isa( 'CLI::Framework::Exception' ) && do{ $e->rethrow() };
+            throw_app_hook_exception( error => $e );
+        }
     }
 }
 
@@ -94,12 +106,68 @@ sub cache { $_[0]->{_cache} }
 #
 ###############################
 
+# convert a list to a HASH ref if list is hash-worthy
+sub _list_to_hashref {
+    my ($app, $method) = @_;
+
+    my $class = ref $app;
+    my @map = $app->$method;
+
+    # throw exception if command_map list is of odd length
+    if( scalar @map % 2 ) {
+        throw_app_hook_exception( error =>
+            "odd-length list returned by application hook '$method' in class '$class' is not hash-worthy\n" );
+    }
+    my %h;
+    for my $i (0..$#map-1) {
+        if($i % 2 == 0) {
+            my ($k,$v) = ( $map[$i], $map[$i+1] );
+            # throw exception if command_map list-to-hash conversion would
+            # lose data due to duplicate keys
+            if( exists $h{$k} ) {
+                throw_app_hook_exception( error =>
+                    "list returned by application hook '$method' in class '$class' is not hash-worthy (duplicate keys for $i)\n" );
+            }
+            $h{ $map[$i] } = $map[$i+1];
+        }
+    }
+    return \%h;
+}
+
+# Transform command map to hashref
+sub command_map_hashref {
+    my ($app) = @_;
+    return $app->_list_to_hashref('command_map');
+}
+
+# Return names of all valid commands
+sub _valid_command_names {
+    my ($app) = @_;
+    my $valid_commands_hashref = $app->command_map_hashref;
+    return keys %$valid_commands_hashref;
+}
+
+# Return package names for all valid commands
+sub _valid_command_pkgs {
+    my ($app) = @_;
+    my $valid_commands_hashref = $app->command_map_hashref;
+    return values %$valid_commands_hashref;
+}
+
+## Given a command name, return its package name
+#sub _find_command_pkg_named {
+#    my ($app, $cmd_name) = @_;
+#    
+#    my $valid_commands_hashref = $app->command_map_hashref;
+#    return $valid_commands_hashref->{$cmd_name};
+#}
+
 sub is_valid_command_pkg {
     my ($app, $cmd_pkg) = @_;
     return unless $cmd_pkg;
 
-    my @valid_pkgs = ( values %{ $app->command_map() }, REQUIRED_BUILTINS );
-    push @valid_pkgs, REQUIRED_BUILTINS_INTERACTIVE
+    my @valid_pkgs = ( $app->_valid_command_pkgs(), REQUIRED_BUILTINS_PKGS );
+    push @valid_pkgs, REQUIRED_BUILTINS_PKGS_INTERACTIVE
         if $app->get_interactivity_mode();
 
     return grep { $cmd_pkg eq $_ } @valid_pkgs;
@@ -109,9 +177,10 @@ sub is_valid_command_name {
     my ($app, $cmd_name) = @_;
     return unless $cmd_name;
 
-    my @valid_aliases = ( keys %{ $app->command_map() } );
-    push @valid_aliases, 'help';
-    push @valid_aliases, 'menu' if $app->get_interactivity_mode();
+    my @valid_aliases = ( $app->_valid_command_names() );
+    push @valid_aliases, REQUIRED_BUILTINS_NAMES;
+    push @valid_aliases, REQUIRED_BUILTINS_NAMES_INTERACTIVE
+        if $app->get_interactivity_mode();
 
     return grep { $cmd_name eq $_ } @valid_aliases;
 }
@@ -119,14 +188,14 @@ sub is_valid_command_name {
 sub registered_command_names {
     my ($app) = @_;
 
-    # For each registered command package...
     my @names;
-    for my $cmd_pkg (keys %{ $app->{_registered_command_objects} }) {
-        # Find the command names that this command package was registered
-        # under...
+
+    # For each registered command package (name)...
+    for my $cmd_pkg_name (keys %{ $app->{_registered_command_objects} }) {
+        # Find command names that this command package was registered under...
         push @names, grep { $_ } map {
-            $_ if $app->command_map->{$_} eq $cmd_pkg
-        } keys %{ $app->command_map }
+            $_ if $app->command_map_hashref->{$_} eq $cmd_pkg_name
+        } $app->_valid_command_names
     }
     return @names;
 }
@@ -135,7 +204,7 @@ sub registered_command_object {
     my ($app, $cmd_name) = @_;
     return unless $cmd_name;
 
-    my $cmd_pkg = $app->command_map->{$cmd_name};
+    my $cmd_pkg = $app->command_map_hashref->{$cmd_name};
 
     return unless $cmd_pkg
         && exists $app->{_registered_command_objects}
@@ -153,12 +222,13 @@ sub register_command {
         return unless $cmd->isa( 'CLI::Framework::Command' );
         $app->{_registered_command_objects}->{ref $cmd} = $cmd;
     }
-    elsif( $app->is_valid_command_pkg($app->command_map->{$cmd}) ) {
+    elsif( $app->is_valid_command_pkg($app->command_map_hashref->{$cmd}) ) {
         # Register by command name...
-        my $pkg = $app->command_map->{$cmd};
+        my $pkg = $app->command_map_hashref->{$cmd};
         $cmd = CLI::Framework::Command->manufacture( $pkg );
         $app->{_registered_command_objects}->{ref $cmd} = $cmd;
     }
+#FIXME:use REQUIRED_BUILTINS_PKGS_INTERACTIVE & REQUIRED_BUILTINS_NAMES_INTERACTIVE
     elsif( $cmd eq 'help' ) {
         # Required built-in is always valid...
         $cmd = CLI::Framework::Command->manufacture( 'CLI::Framework::Command::Help' );
@@ -224,19 +294,10 @@ sub _canonicalize_cmd {
 
     return unless $input;
 
-    # Allow caller to define command_alias() to return either a hash or a
-    # hashref...
     my $command_name;
-    if( ref $self->command_alias() eq 'HASH' ) {
-        my $aliases = $self->command_alias();
-        return unless $aliases;
-        $command_name = $aliases->{$input} || $input;
-    }
-    else {
         my %aliases = $self->command_alias();
         return unless %aliases;
         $command_name = $aliases{$input} || $input;
-    }
     $_[1] = $command_name;
 }
 
@@ -437,7 +498,7 @@ sub is_interactive_command {
 sub get_interactive_commands {
     my ($app) = @_;
 
-    my @valid_commands = keys %{ $app->command_map };
+    my @valid_commands = $app->_valid_command_names;
 
     # All valid commands are enabled in non-interactive mode...
     return @valid_commands unless( $app->get_interactivity_mode() );
@@ -558,9 +619,16 @@ sub read_cmd {
     # Prompt for the name of a command and read input from STDIN.
     # Store the individual tokens that are read in @ARGV.
     my $command_request = $term->readline('> ');
-    if( defined $command_request ) {
-        @ARGV = Text::ParseWords::shellwords( $command_request ); # prepare command for usual parsing
-        $term->addhistory( $command_request );
+    if(! defined $command_request ) {
+        # Interpret CTRL-D (EOF) as a quit signal...
+        @ARGV = $app->quit_signals();
+        print "\n"; # since EOF character is rendered as ''
+    }
+    else {
+        # Prepare command for usual parsing...
+        @ARGV = Text::ParseWords::shellwords( $command_request );
+        $term->addhistory($command_request)
+            if $command_request =~ /\S/ and !$term->Features->{autohistory};
     }
     return 1;
 }
@@ -572,7 +640,7 @@ sub read_cmd {
 #    my ($app) = @_;
 #    return sub {
 #        my ($text, $line, $start) = @_;
-#        return keys %{ $app->command_map() };
+#        return $app->_valid_command_names;
 #    }
 #}
 
@@ -602,15 +670,13 @@ sub option_spec { }
 sub validate_options { 1 }
 
 sub command_map {
-    {
-        help        => 'CLI::Framework::Command::Help',
-        console     => 'CLI::Framework::Command::Console',
-        menu        => 'CLI::Framework::Command::Menu',
-        list        => 'CLI::Framework::Command::List',
-        'dump'      => 'CLI::Framework::Command::Dump',
-        tree        => 'CLI::Framework::Command::Tree',
-        alias       => 'CLI::Framework::Command::Alias',
-    }
+    help        => 'CLI::Framework::Command::Help',
+    console     => 'CLI::Framework::Command::Console',
+    menu        => 'CLI::Framework::Command::Menu',
+    list        => 'CLI::Framework::Command::List',
+    'dump'      => 'CLI::Framework::Command::Dump',
+    tree        => 'CLI::Framework::Command::Tree',
+    alias       => 'CLI::Framework::Command::Alias',
 }
 
 sub command_alias { }
@@ -706,13 +772,13 @@ CLI::Framework::Application - CLIF Application superclass
         [ 'db=s'        => 'path to SQLite database file' ],
     }
 
-    sub command_map { {
+    sub command_map {
         help    => 'CLI::Framework::Command::Help',
         menu    => 'My::Journal::Command::Menu',
         entry   => 'My::Journal::Command::Entry',
         publish => 'My::Journal::Command::Publish',
         console => 'CLI::Framework::Command::Console',
-    } }
+    }
 
     sub command_alias {
         h   => 'help',
@@ -731,16 +797,6 @@ CLI::Framework::Application - CLIF Application superclass
     }
     1;
 
-=head1 INTRODUCTION
-
-See L<CLI::Framework> for an introduction to CLIF (it is new to version 0.04;
-the general framework documentation has been moved there).
-
-B<Note> that C<CLI::Framework> can now serve as the superclass for your
-applications (this is new in version 0.04).  However, as in earlier versions,
-C<CLI::Framework::Application> will continue to work as the application base
-class.
-
 =head1 OBJECT CONSTRUCTION
 
 =head2 new( [interactive => 1] )
@@ -758,6 +814,16 @@ defined in the application class.  If validation fails, an exception is thrown.
 
 The methods in this section are responsible for providing access to the
 commands in an application.
+
+=head2 command_map_hashref()
+
+    $h = $app->command_map_hashref();
+
+Returns a HASH ref built from the command_map for an Application (by direct
+conversion from the command map array).
+
+If the list returned by the definition of L<command_map|/command_map()> in the
+application is not hash-worthy, an exception is thrown.
 
 =head2 is_valid_command_pkg( $package_name )
 
@@ -811,12 +877,11 @@ either the name of a command or a reference to a L<CLI::Framework::Command>
 object.
 
 If C<$cmd> is a L<CLI::Framework::Command> object and it is one of the command
-types specified (as a value in the hash returned by
-L<command_map|/command_map()>) to be valid, the command object is registered and
-returned.
+types specified in L<command_map|/command_map()> to be valid, the command
+object is registered and returned.
 
-If C<$cmd> is the name of a valid command (one of the keys in the
-L<command_map|/command_map()>), an object of the corresponding command class is
+If C<$cmd> is the name of a valid command specified in
+L<command_map|/command_map()>, an object of the corresponding command class is
 registered and returned.
 
 If C<$cmd> is not recognized, an exception is thrown.
@@ -1107,28 +1172,29 @@ additional flexibility in validating application options.
 =head2 command_map()
 
 Return a mapping between command names and Command classes (classes that inherit
-from L<CLI::Framework::Command>).  The mapping is a hashref where the keys are
-names that should be used to install the commands in the application and the
-values are the package names of the packages that implement the corresponding
-commands, as in this example:
+from L<CLI::Framework::Command>).  The mapping is a list of key-value pairs.
+The list should be "hash-worthy", meaning that it can be directly converted to
+a hash.
+
+The keys are names that should be used to install the commands in the
+application.  The values are the names of the packages that implement the
+corresponding commands, as in this example:
 
     sub command_map {
-        {
-            # custom commands:
-            fly     => 'My::Command::Fly',
-            run     => 'My::Command::Run',
+        # custom commands:
+        fly     => 'My::Command::Fly',
+        run     => 'My::Command::Run',
 
-            # overridden built-in commands:
-            menu    => 'My::Command::Menu',
+        # overridden built-in commands:
+        menu    => 'My::Command::Menu',
 
-            # built-in commands:
-            help    => 'CLI::Framework::Command::Help',
-            list    => 'CLI::Framework::Command::List',
-            tree    => 'CLI::Framework::Command::Tree',
-            'dump'  => 'CLI::Framework::Command::Dump',
-            console => 'CLI::Framework::Command::Console',
-            alias   => 'CLI::Framework::Command::Alias',
-        }
+        # built-in commands:
+        help    => 'CLI::Framework::Command::Help',
+        list    => 'CLI::Framework::Command::List',
+        tree    => 'CLI::Framework::Command::Tree',
+        'dump'  => 'CLI::Framework::Command::Dump',
+        console => 'CLI::Framework::Command::Console',
+        alias   => 'CLI::Framework::Command::Alias',
     }
 
 =head2 command_alias()
@@ -1137,8 +1203,8 @@ This hook allows aliases for commands to be specified.  The aliases will be
 recognized in place of the actual command names.  This is useful for setting
 up shortcuts to longer command names.
 
-C<command_alias> should return a hash where the keys are aliases and the
-values are command names.
+C<command_alias> should return a "hash-worthy" list where the keys are aliases
+and the values are command names.
 
 An example of its definition:
 
@@ -1239,10 +1305,10 @@ something more elaborate, such as exception objects).
 
 =head1 CONFIGURATION & ENVIRONMENT
 
-For interactive usage, L<Term::ReadLine> is used.  Depending on which readline
-libraries are available on your system, your interactive experience will vary
-(for example, systems with GNU readline can benefit from a command history
-buffer).
+For interactive usage, L<Term::ReadLine> is used by default.  Depending on which
+readline libraries are available on your system, your interactive experience
+will vary (for example, systems with GNU readline can benefit from a command
+history buffer).
 
 =head1 DEPENDENCIES
 

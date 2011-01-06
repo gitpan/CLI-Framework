@@ -81,3 +81,25 @@ Revision history for CLI::Framework
         ***
         * in CLI::Framework::Exceptions, changed throw_app_args_exception() to
           throw_invalid_cmd_exception()
+
+0.05    2011-01-06
+
+        * RT #56882: Fixed to use autohistory if the system's local ReadLine
+                     supports it.
+
+        * RT #56885: EOF now treated like a quit signal
+
+        *** ATTENTION: updates that affect the interface...
+
+        * RT #56887: The Application hook method "command_map" should now
+                     return a (hash-worthy) list, not a HASH ref.
+                     
+                     To upgrade a CLIF app to be compatible with this release,
+                     change the definition of command_map() to return a list
+                     (see documentation for CLI::Framework::Application::command_map)
+                     and remember to change calls to that method if necessary.
+
+                     Also see the new CLIF Application method, command_map_hashref()
+
+        * New method CLI::Framework::Application::command_map_hashref()
+          returns a HASH ref constructed from the command_map() list.

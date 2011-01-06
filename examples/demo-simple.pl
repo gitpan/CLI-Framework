@@ -31,9 +31,7 @@ sub option_spec {
 }
 
 sub command_map {
-    {
-        'legacy-script' => 'Converted::Script::Command::LegacyScript',
-    }
+    'legacy-script' => 'Converted::Script::Command::LegacyScript',
 }
 
 # ---- COMMAND ----

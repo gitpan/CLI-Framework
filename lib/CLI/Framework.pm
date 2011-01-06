@@ -4,7 +4,7 @@ use base qw( CLI::Framework::Application );
 use strict;
 use warnings;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05_01';
 
 #-------
 1;
