@@ -91,7 +91,11 @@ Revision history for CLI::Framework
 
         *** ATTENTION: updates that affect the interface...
 
-        * RT #56887: The Application hook method "command_map" should now
+        * RT #56887: The order of the commands shown in the built-in interactive
+                     menu is now determined by the order the commands are
+                     declared in command_map.
+
+                     The Application hook method "command_map" should now
                      return a (hash-worthy) list, not a HASH ref.
                      
                      To upgrade a CLIF app to be compatible with this release,

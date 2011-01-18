@@ -140,11 +140,23 @@ sub command_map_hashref {
     return $app->_list_to_hashref('command_map');
 }
 
-# Return names of all valid commands
+# Return names of all valid commands in same order as specified by
+# command_map()
 sub _valid_command_names {
     my ($app) = @_;
-    my $valid_commands_hashref = $app->command_map_hashref;
-    return keys %$valid_commands_hashref;
+
+    # ordered pairs of (command name, command class)
+    my @valid_command_name_class_pairs = $app->command_map();
+    
+    # unordered command names
+    my @command_names = keys %{ { @valid_command_name_class_pairs } };
+
+    my @ordered_command_names;
+    for my $c (@valid_command_name_class_pairs) {
+        push @ordered_command_names, $c
+            if grep {$_ eq $c} @command_names;
+    }
+    return @ordered_command_names;
 }
 
 # Return package names for all valid commands
@@ -1175,6 +1187,9 @@ Return a mapping between command names and Command classes (classes that inherit
 from L<CLI::Framework::Command>).  The mapping is a list of key-value pairs.
 The list should be "hash-worthy", meaning that it can be directly converted to
 a hash.
+
+Note that the order of the commands in this list determines the order that the
+commands are displayed in the built-in interactive menu.
 
 The keys are names that should be used to install the commands in the
 application.  The values are the names of the packages that implement the
