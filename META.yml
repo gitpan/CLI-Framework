@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               CLI-Framework
-version:            0.05_02
+version:            0.05
 abstract:           Build standardized, flexible, testable command-line applications
 author:
     - Karl Erisman <kerisman@cpan.org>
@@ -24,7 +24,7 @@ no_index:
     directory:
         - t
         - inc
-generated_by:       ExtUtils::MakeMaker version 6.56
+generated_by:       ExtUtils::MakeMaker version 6.50
 meta-spec:
     url:      http://module-build.sourceforge.net/META-spec-v1.4.html
     version:  1.4

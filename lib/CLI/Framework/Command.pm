@@ -702,7 +702,7 @@ If an error occurs during the execution of a command via its C<run()> method,
 the C<run()> method code should throw an exception.  The exception will be
 caught and handled appropriately by CLIF.
 
-The return value of C<run()> is treated as data to be output by the
+The return value of C<run()> is treated as data to be processed by the
 L<render|CLI::Framework::Application/render( $output )> method in your CLIF Application
 class.  B<Note that nothing should be printed directly in your implementation of
 C<run>>.  If no output is to be produced, your C<run()> method should return

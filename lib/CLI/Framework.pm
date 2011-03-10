@@ -4,7 +4,7 @@ use base qw( CLI::Framework::Application );
 use strict;
 use warnings;
 
-our $VERSION = '0.05_02';
+our $VERSION = '0.05';
 
 #-------
 1;
@@ -132,6 +132,11 @@ Support the concept of a default command for the application
 
 Exception handling that allows individual applications to define custom
 exception handlers
+
+=item *
+
+Performance.  Core framework code should load as quickly as a simple script;
+individual commands should be initialized only when invoked.
 
 =back
 

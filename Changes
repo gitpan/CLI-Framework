@@ -82,7 +82,7 @@ Revision history for CLI::Framework
         * in CLI::Framework::Exceptions, changed throw_app_args_exception() to
           throw_invalid_cmd_exception()
 
-0.05    2011-01-06
+0.05    2011-03-10
 
         * RT #56882: Fixed to use autohistory if the system's local ReadLine
                      supports it.
@@ -103,7 +103,7 @@ Revision history for CLI::Framework
                      (see documentation for CLI::Framework::Application::command_map)
                      and remember to change calls to that method if necessary.
 
-                     Also see the new CLIF Application method, command_map_hashref()
+                     Also see the new CLIF Application method, command_map_hashref().
 
         * New method CLI::Framework::Application::command_map_hashref()
           returns a HASH ref constructed from the command_map() list.
